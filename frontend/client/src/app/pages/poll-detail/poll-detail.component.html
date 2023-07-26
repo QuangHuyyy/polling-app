@@ -1,0 +1,579 @@
+<div *ngIf="pollDetail" class="max-w-3xl mx-auto">
+  <div *ngIf="pollDetail.status.toLowerCase() == 'draft' && isOwner" class="">
+    <div class="bg-yellow-50 rounded-md mb-8">
+      <div class="max-w-7xl mx-auto py-3 px-4">
+        <div class="flex items-center justify-between flex-wrap">
+          <div class="w-0 flex-1 flex items-center">
+          <span class="flex p-2 rounded-lg bg-yellow-400 text-white">
+            <svg-icon fontSize="20px" key="warning-no-fill"></svg-icon>
+          </span>
+
+            <p class="ml-3 text-base text-yellow-700">This poll is in draft mode. Others cannot access it.</p>
+          </div>
+
+          <div class="flex-shrink-0 order-3 ml-3">
+            <button (click)="onPublicPoll()" class="primaryBtn py-2 px-4" type="button">Public</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form #form="ngForm" (ngSubmit)="onSubmitForm(form)" [formGroup]="fVotePoll" class="primaryBox text-start" novalidate>
+    <div class="flex justify-between">
+      <div class="flex grow flex-col gap-y-1">
+        <h1 class="text-start break-words">{{ pollDetail.title }}</h1>
+
+        <div class="flex items-center gap-x-1 text-base">
+          <span class="">{{pollDetail.ownerName}}</span>
+          <svg-icon fontSize="4px" key="dot"></svg-icon>
+          <span class="">{{pollDetail.createdAt | dateAgo }}</span>
+        </div>
+      </div>
+
+      <div [ngClass]="{'hidden': !isOwner}">
+        <app-menu-action (resetPollChange)="handelResetPoll($event)" (toggleMenu)="isOpenMenu = $event"
+                         [isOpenMenuAction]="isOpenMenu"
+                         [poll]="pollDetail"></app-menu-action>
+
+        <div (click)="isOpenMenu = false" *ngIf="isOpenMenu" class="absolute inset-0 bg-transparent"></div>
+      </div>
+    </div>
+
+    <!--  Description -->
+    <div *ngIf="pollDetail.description" class="flex items-center gap-x-3">
+      <svg-icon fontSize="25px" key="desc"></svg-icon>
+      <p class="text-base">{{pollDetail.description}}</p>
+    </div>
+
+    <!--  Thumbnail -->
+    <div *ngIf="pollDetail.thumbnail" class="flex justify-center px-20">
+      <img alt="thumbnail poll" class="block" src="{{ pollDetail.thumbnail }}"/>
+    </div>
+
+    <!--  Choices -->
+    <div class="">
+      <p class="text-base">Make a choice:</p>
+      <div class="flex flex-col gap-y-3 mt-3">
+        <!--          <legend class="hidden">Poll options</legend>-->
+
+        <!--          Voting type = multiple-choice -->
+        <div *ngIf="pollDetail.votingTypeValue == 'multiple_choice'" class="flex flex-col gap-y-3">
+          <div *ngFor="let choice of pollDetail.choices; let index = index">
+
+            <div *ngIf="!choice['other']" class="flex items-center gap-x-3 text-base">
+              <input [formControl]="$any(choiceIds).controls[index]"
+                     class="hidden" type="text"/>
+              <input (change)="addVoteId(choice['id'],index)" [checked]="choiceIds.at(index).value != ''"
+                     name="{{ pollDetail.setting.allowMultipleOptions ? '' : 'answer-choice' }}"
+                     type="{{ pollDetail.setting.allowMultipleOptions ? 'checkbox' : 'radio' }}"/>
+              <label class="">{{choice['value']}}</label>
+            </div>
+
+            <div *ngIf="choice['other']" class="flex items-center gap-x-3 text-base">
+              <input [formControl]="$any(choiceIds).controls[index]"
+                     class="hidden" type="text"/>
+              <input (change)="addVoteId(choice['id'],index)" [checked]="choiceIds.at(index).value != ''"
+                     name="{{ pollDetail.setting.allowMultipleOptions ? '' : 'answer-choice' }}"
+                     type="{{ pollDetail.setting.allowMultipleOptions ? 'checkbox' : 'radio' }}"/>
+              <div class="flex grow items-center gap-x-2">
+                <label class="">Other</label>
+                <!--                  <label class="" for="other_choice">Other:</label>-->
+                <!--                  <input-->
+                <!--                    class="grow block outline-none p-1 border-b border-border focus:border-inputHighlight focus:ring-2 focus:ring-inputHighlight focus:ring-offset-1"-->
+                <!--                    id="other_choice" placeholder="Enter your choice"/>-->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--          Voting type = image-->
+        <div *ngIf="pollDetail.votingTypeValue == 'image'" [ngClass]="{'!grid-cols-3': pollDetail.choices.length > 2}"
+             class="grid grid-cols-2 gap-6 text-base">
+          <div *ngFor="let choice of pollDetail.choices; let index = index">
+            <label [ngClass]="{'ring-2 ring-inputHighlight': choiceIsSelected(choice.id)}"
+                   class="flex flex-col justify-between mt-3 rounded-md relative cursor-pointer border border-inputBorder">
+              <div class="flex flex-grow h-48 px-3 py-2 mx-auto">
+                <img alt="image-choice" class="object-contain" src="{{ choice['imageUrl'] }}"/>
+              </div>
+              <div [ngClass]="{'border-t-2 border-inputHighlight': choiceIsSelected(choice.id)}"
+                   class="flex items-center border-t border-inputBorder px-3 py-2 gap-x-2">
+
+                <input [formControl]="$any(choiceIds).controls[index]"
+                       class="hidden" type="text"/>
+
+                <input (change)="addVoteId(choice['id'],index)" [checked]="choiceIds.at(index).value != ''"
+                       class="!w-4 !h-4"
+                       type="{{ pollDetail.setting.allowMultipleOptions ? 'checkbox' : 'radio' }}"/>
+                <span class="">{{ choice['label'] }}</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!--          Voting type = meeting-->
+        <div *ngIf="pollDetail.votingTypeValue == 'meeting'" class="text-base">
+          <div [ngClass]="{'flex items-center justify-center flex-col': pollDetail.choices.length <= 6}"
+               class="relative overscroll-contain">
+            <div class="sticky top-0 z-20">
+              <div class="bg-white py-4 flex justify-end items-center space-x-2">
+                <button (click)="scrollMeeting(scrollOne, scrollTwo, true)"
+                        [disabled]="scrollOne.scrollLeft == 0"
+                        [ngClass]="{'cursor-not-allowed opacity-50': scrollOne.scrollLeft == 0}"
+                        class="border border-secondButtonBorder rounded-md py-1.5 px-2.5 flex items-center justify-center focus:ring-2 hover:border-gray-400 ring-inputHighlight"
+                        type="button">
+                  <svg-icon class="" fontSize="16px" key="caret-left"></svg-icon>
+                </button>
+
+                <button (click)="scrollMeeting(scrollOne, scrollTwo, false)"
+                        [disabled]="isScrollMeetingEnd || (pollDetail.choices.length <= 6)"
+                        [ngClass]="{'cursor-not-allowed opacity-50': isScrollMeetingEnd || (pollDetail.choices.length <= 6)}"
+                        class="border border-secondButtonBorder rounded-md py-1.5 px-2.5 flex items-center justify-center focus:ring-2 hover:border-gray-400 ring-inputHighlight"
+                        type="button">
+                  <svg-icon class="" fontSize="16px" key="caret-right"></svg-icon>
+                </button>
+              </div>
+
+              <div #scrollOne class="overflow-hidden">
+                <div *ngIf="voteResult" class="flex items-stretch font-bold">
+                  <div
+                    class="sticky left-0 flex flex-col justify-between bg-white border-b border-border">
+                    <!--                        sort by-->
+                    <div class=""></div>
+
+                    <div class="text-left text-title w-60 flex-shrink-0">Name</div>
+                  </div>
+
+                  <!--                    Meeting choice-->
+                  <div *ngFor="let choice of voteResult.choices; let index = index"
+                       class="pr-2 bg-white border-b border-border">
+                    <div class="w-16 flex-shrink-0 min-h-[135px]">
+                      <div
+                        class="text-center rounded py-1 text-white bg-primaryButtonBg hover:bg-primaryButtonBgHover text-base">
+                        <div class="font-normal">{{ choice.choice['timeFrom'] | date:'MMM' }}</div>
+                        <div class="">{{choice.choice['timeFrom'] | date: 'dd'}}</div>
+                      </div>
+                      <div class="mt-1 flex justify-center text-title text-base">
+                        <span class="">{{choice.choice['timeFrom'] | date: 'EEE'}}</span>
+                      </div>
+                      <div class="font-normal text-text text-sm flex items-center justify-center h-[50px]">
+                        <div
+                          *ngIf="choice.choice['timeFrom'].split('T')[1] == '00:00' && choice.choice['timeTo'].split('T')[1] == '23:59'; else notAllDay"
+                          class="">
+                          <span class="">All day</span>
+                        </div>
+
+                        <ng-template #notAllDay>
+                          <div class="flex items-center justify-between flex-col">
+                            <div class="whitespace-nowrap">{{ choice.choice['timeFrom'] | date:'shortTime'}}</div>
+                            <span style="line-height: 3px">-</span>
+                            <div class="whitespace-nowrap">{{ choice.choice['timeTo'] | date:'shortTime'}}</div>
+                          </div>
+                        </ng-template>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div *ngIf="voteResult" class="flex items-stretch whitespace-nowrap">
+                  <div class="sticky left-0 z-30 w-60 flex-shrink-0 bg-boxBg border-b border-boxBorder">
+                    <div class="flex items-center justify-between pr-2 py-2 h-12">
+                      <div class="text-textGrayDark">
+                        <span class="">{{voteResult.participantVotes.length}} participants</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div *ngFor="let choice of voteResult.choices"
+                       class="pr-2 border-b border-boxBorder bg-boxBg">
+                    <div class="flex-shrink-0 flex items-center justify-center h-full w-16">
+                      <div class="flex justify-center">
+                        <div class="text-text flex items-center justify-center">
+                          <svg-icon class="text-green-500" fontSize="16px" key="check"></svg-icon>
+                          <span class="">{{ choice.voteCount }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div #scrollTwo (scroll)="onScrollMeeting(scrollOne, scrollTwo)" class="overflow-auto">
+              <div *ngIf="voteResult" class="">
+                <div *ngFor="let participant of voteResult.participantVotes" class="flex items-stretch">
+                  <div class="sticky left-0 z-10 border-b border-boxBorder bg-boxBg">
+                    <div class="w-60 flex-shrink-0 h-10 py-2 pr-2 flex items-center truncate">
+                      <span class="mr-2 flex-shrink-0 text-text flex items-center justify-center">
+                        <svg-icon fontSize="24px" key="avatar-circle"></svg-icon>
+                      </span>
+                      <div class="grow flex items-center justify-between">
+                        <span *ngIf="!(editMeetingVote && lastVotedId == participant.voteId)"
+                              class="">{{ participant.participant == null ? ' ' : participant.participant }}</span>
+
+                        <input *ngIf="editMeetingVote && lastVotedId == participant.voteId"
+                               class="block w-full rounded border text-text bg-white border-inputBorder py-1.5 px-3 focus:ring-2 ring-inputHighlight focus:outline-none"
+                               formControlName="name" placeholder="Enter your name" type="text">
+
+                        <button (click)="onEditMeetingVote(participant.choiceIds, participant.participant)"
+                                *ngIf="!editMeetingVote && isExpired && lastVotedId && lastVotedId == participant.voteId"
+                                class="flex items-center justify-center h-8 w-8 rounded-full secondaryBtn"
+                                type="button">
+                          <svg-icon fontSize="20px" key="pencil-fill"></svg-icon>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!--                  Edit vote -->
+                  <div *ngIf="editMeetingVote && lastVotedId == participant.voteId" class="grow flex items-stretch">
+                    <div *ngFor="let choiceId of choiceIds.controls; index as i" class=""
+                         formArrayName="choiceIds">
+                      <div class="pr-2 bg-boxBg border-b border-boxBorder h-full py-2">
+                        <div class="h-full w-16">
+                          <div class="flex justify-center items-center h-full">
+                            <div class="">
+                              <button
+                                (click)="addMeetingVoteId(pollDetail.choices[i]['id'], i)"
+                                *ngIf="(!isDisableMeetingChoiceRemaining || choiceId?.value != '') || isFirstVote; else disableMeetingRemainingBlock"
+                                class="border bg-white rounded block w-6 h-6 select-none cursor-pointer border-border hover:border-gray-400 focus:ring-1 focus:outline-none ring-inputHighlight"
+                                type="button">
+                              <span *ngIf="choiceId?.value != ''"
+                                    class="flex justify-center items-center text-green-500">
+                                <svg-icon fontSize="24px" key="check"></svg-icon>
+                              </span>
+                              </button>
+
+                              <ng-template #disableMeetingRemainingBlock>
+                            <span class="flex justify-center items-center text-text cursor-not-allowed">
+                              <svg-icon fontSize="24px" key="prohibit"></svg-icon>
+                            </span>
+                              </ng-template>
+
+                              <input
+                                [formControl]="$any(choiceId)"
+                                class="absolute top-0 left-0 -z-50"
+                                type="text">
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!--                  Vote or no vote -->
+                  <div *ngIf="!(editMeetingVote && lastVotedId == participant.voteId)" class="grow flex items-stretch">
+                    <div *ngFor="let choiceId of voteResult.choices; index as i" class="">
+                      <div class="pr-2 bg-boxBg border-b border-boxBorder h-full py-1">
+                        <div *ngIf="!(editMeetingVote && lastVotedId == participant.voteId)" class="h-full w-16">
+                          <div *ngIf="participant.choiceIds.includes(choiceId.choice.id)"
+                               class="flex justify-center items-center h-full bg-green-50 text-green-500">
+                            <svg-icon fontSize="24px" key="check"></svg-icon>
+                          </div>
+
+                          <div *ngIf="!participant.choiceIds.includes(choiceId.choice.id)"
+                               class="flex justify-center items-center h-full bg-red-50 text-red-500">
+                            <svg-icon fontSize="24px" key="x"></svg-icon>
+                          </div>
+                        </div>
+
+                        <div *ngIf="editMeetingVote && lastVotedId == participant.voteId" class="h-full w-16">
+                          <div class="flex justify-center items-center h-full">
+                            <div class="">
+                              <button
+                                (click)="addMeetingVoteId(pollDetail.choices[i]['id'], i)"
+                                *ngIf="participant.choiceIds.includes(choiceId.choice.id); else disableMeetingRemainingBlock"
+                                class="border bg-white rounded block w-6 h-6 select-none cursor-pointer border-border hover:border-gray-400 focus:ring-1 focus:outline-none ring-inputHighlight"
+                                type="button">
+                                                <span
+                                                  class="flex justify-center items-center text-green-500">
+                                                  <svg-icon fontSize="24px" key="check"></svg-icon>
+                                                </span>
+                              </button>
+
+                              <ng-template #disableMeetingRemainingBlock>
+                                              <span
+                                                class="flex justify-center items-center text-text cursor-not-allowed">
+                                                <svg-icon fontSize="24px" key="prohibit"></svg-icon>
+                                              </span>
+                              </ng-template>
+
+                              <!--                            <input-->
+                              <!--                              [formControl]="$any(choiceId)"-->
+                              <!--                              class="absolute top-0 left-0 -z-50"-->
+                              <!--                              type="text">-->
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!--              Choose answer for vote-->
+              <div *ngIf="!editMeetingVote" class="flex items-stretch mb-4">
+                <div class="sticky left-0 z-10 border-b border-boxBorder bg-boxBg">
+                  <div class="w-60 flex-shrink-0 h-10 py-2 pr-2 flex items-center truncate">
+                      <span class="mr-2 flex-shrink-0 text-inputHighlight flex items-center justify-center">
+                        <svg-icon fontSize="24px" key="avatar-circle"></svg-icon>
+                      </span>
+
+                    <input
+                      class="block w-full rounded border text-text bg-white border-inputBorder py-1.5 px-3 focus:ring-2 ring-inputHighlight focus:outline-none"
+                      formControlName="name" placeholder="Enter your name" type="text">
+                  </div>
+                </div>
+
+                <div *ngFor="let choiceId of choiceIds.controls; index as i" class=""
+                     formArrayName="choiceIds">
+                  <div class="pr-2 bg-boxBg border-b border-boxBorder h-full py-2">
+                    <div class="h-full w-16">
+                      <div class="flex justify-center items-center h-full">
+                        <div class="">
+                          <button
+                            (click)="addMeetingVoteId(pollDetail.choices[i]['id'], i)"
+                            *ngIf="(!isDisableMeetingChoiceRemaining || choiceId?.value != '' || isFirstVote); else disableMeetingRemainingBlock"
+                            class="border bg-white rounded block w-6 h-6 select-none cursor-pointer border-border hover:border-gray-400 focus:ring-1 focus:outline-none ring-inputHighlight"
+                            type="button">
+                              <span *ngIf="choiceId?.value != '' "
+                                    class="flex justify-center items-center text-green-500">
+                                <svg-icon fontSize="24px" key="check"></svg-icon>
+                              </span>
+                          </button>
+
+                          <ng-template #disableMeetingRemainingBlock>
+                            <span class="flex justify-center items-center text-text cursor-not-allowed">
+                              <svg-icon fontSize="24px" key="prohibit"></svg-icon>
+                            </span>
+                          </ng-template>
+
+                          <input
+                            [formControl]="$any(choiceId)"
+                            class="absolute top-0 left-0 -z-50"
+                            type="text">
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--  Name -->
+    <div *ngIf="pollDetail.setting.requireParticipantName" class="">
+      <label class="font-medium" for="name">
+        <span class="text-title">Name</span>
+        <span class="text-textGrayLight"> (required)</span>
+      </label>
+
+      <input
+        class="block mt-1 w-full py-2 px-3 rounded-md border border-border focus:ring-2 focus:ring-inputHighlight outline-none"
+        formControlName="name"
+        id="name"
+        placeholder="Enter your name"
+        type="text"/>
+    </div>
+
+    <!--  Token -->
+    <div *ngIf="pollDetail.setting.votingRestrictionValue == 'token'" class="">
+      <label class="font-medium" for="token">
+        <span class="text-gray-700">Voting token</span>
+        <span class="text-gray-500"> (required)</span>
+      </label>
+
+      <input
+        class="block mt-1 w-full py-2 px-3 rounded-md border border-border focus:ring-2 focus:ring-inputHighlight outline-none"
+        formControlName="token"
+        id="token"
+        placeholder="Enter your unique voting token"
+        type="text"/>
+    </div>
+
+    <!--    Update vote or new vote -->
+    <div *ngIf="pollDetail.setting.allowEditVote && !isNewVote" class="text-text text-base">
+      <span class="">Update your vote or </span>
+      <button (click)="onChangeNewVote()" class="text-link" type="button">add a new vote.</button>
+    </div>
+
+    <!--  Deadline -->
+    <p *ngIf="isDeadline" class="text-base">Voting
+      closed {{ pollDetail.setting.deadlineTime | date }}.</p>
+
+    <!--          Errors -->
+    <div class="">
+      <div
+        *ngIf="(fVotePoll.get('name')?.touched && fVotePoll.get('name')?.hasError('customRequired')) || (form.submitted && fVotePoll.get('name')?.hasError('customRequired'))"
+        class="pb-5">
+        <div class="rounded-md bg-red-50 p-4 border border-transparent">
+          <div class="flex gap-x-3 items-center">
+            <svg-icon color="#ef4444" fontSize="20px" key="x-circle-fill"></svg-icon>
+            <span class="text-sm text-red-800">Please enter your name</span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        *ngIf="(fVotePoll.get('token')?.touched && fVotePoll.get('token')?.hasError('customRequired')) || (form.submitted && fVotePoll.get('token')?.hasError('customRequired'))"
+        class="pb-5">
+        <div class="rounded-md bg-red-50 p-4 border border-transparent">
+          <div class="flex gap-x-3 items-center">
+            <svg-icon color="#ef4444" fontSize="20px" key="x-circle-fill"></svg-icon>
+            <span class="text-sm text-red-800">Please enter your unique token</span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        *ngIf="form.submitted && choiceIds.hasError('requiredChoice')"
+        class="pb-5">
+        <div class="rounded-md bg-red-50 p-4 border border-transparent">
+          <div class="flex gap-x-3 items-center">
+            <svg-icon color="#ef4444" fontSize="20px" key="x-circle-fill"></svg-icon>
+            <span class="text-sm text-red-800">Please enter at least one answer option.</span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        *ngIf="messageError != ''"
+        class="pb-5">
+        <div class="rounded-md bg-red-50 p-4 border border-transparent">
+          <div class="flex gap-x-3 items-center">
+            <svg-icon color="#ef4444" fontSize="20px" key="x-circle-fill"></svg-icon>
+            <span class="text-sm text-red-800">{{ messageError }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--  Buttons -->
+    <div *ngIf="!editMeetingVote" class="flex items-center gap-x-4">
+      <button *ngIf="isNewVote; else updateVoteBtn"
+              class="primaryBtn flex items-center justify-center gap-x-2 py-2 px-8 w-40" type="submit">
+        <span class="">Vote</span>
+        <svg-icon fontSize="16px" key="arrow-right"></svg-icon>
+      </button>
+      <ng-template #updateVoteBtn>
+        <button class="primaryBtn flex items-center justify-center py-2 px-8 w-40" type="submit">
+          <span class="">Update vote</span>
+        </button>
+      </ng-template>
+
+      <a *ngIf="pollDetail.votingTypeValue !== 'meeting' && isShowResult"
+         class="secondaryBtn flex items-center justify-center gap-x-2 py-2 px-8 w-40"
+         routerLink="result">
+        <svg-icon fontSize="20px" key="result"></svg-icon>
+        <span class="">Result</span>
+      </a>
+    </div>
+
+    <div *ngIf="editMeetingVote" class="flex items-center gap-x-4">
+      <button (click)="updateVoteMeeting()" class="primaryBtn flex items-center justify-center py-2 px-8 w-40"
+              type="button">
+        <span class="">Update vote</span>
+      </button>
+
+      <button (click)="onCancelEditMeeting()" class="lex items-center justify-center" type="button">
+        <span class="">Cancel</span>
+      </button>
+    </div>
+  </form>
+
+  <div class="">
+    <div *ngIf="pollDetail.setting.votingRestrictionValue == 'none'"
+         class="flex items-center justify-center gap-x-2 my-8">
+      <svg-icon fontSize="16px" key="lock-open"></svg-icon>
+      <span class="">Users can vote multiple times without limitation.</span>
+    </div>
+
+    <div *ngIf="pollDetail.setting.votingRestrictionValue == 'session'"
+         class="flex items-center justify-center gap-x-2 my-8">
+      <svg-icon fontSize="16px" key="lock"></svg-icon>
+      <span class="">One vote per browser session allowed.</span>
+    </div>
+
+    <div *ngIf="pollDetail.setting.votingRestrictionValue == 'ip'"
+         class="flex items-center justify-center gap-x-2 my-8">
+      <svg-icon fontSize="16px" key="lock"></svg-icon>
+      <span class="">One vote per IP-Address allowed.</span>
+    </div>
+
+    <div *ngIf="pollDetail.setting.votingRestrictionValue == 'user'"
+         class="flex items-center justify-center gap-x-2 my-8">
+      <svg-icon fontSize="16px" key="lock"></svg-icon>
+      <span class="">One vote per user account allowed.</span>
+    </div>
+
+    <div *ngIf="pollDetail.setting.votingRestrictionValue == 'token'"
+         class="flex items-center justify-center gap-x-2 my-8">
+      <svg-icon fontSize="16px" key="shield"></svg-icon>
+      <span class="">One vote per unique voting token allowed.</span>
+    </div>
+  </div>
+
+  <!--  Share -->
+  <div *ngIf="pollDetail.setting.votingRestrictionValue == 'token' && isOwner"
+       class="bg-white border divide-y divide-border border-boxBorder rounded-md overflow-hidden mb-8">
+    <div class="px-6 py-5 flex items-center justify-between">
+      <div class="flex items-center gap-x-2">
+        <svg-icon fontSize="20px" key="share"></svg-icon>
+        <h2 class="">Share</h2>
+      </div>
+
+      <div class="text-xs text-gray-500 px-2 py-1 rounded-md inline-flex items-center gap-x-2 border">
+        <svg-icon fontSize="14px" key="eye"></svg-icon>
+        <span class="">Only visible to you</span>
+      </div>
+    </div>
+
+    <div class="">
+      <div class="px-4 py-6 max-w-lg mx-auto text-text">
+        <div class="mb-6 pb-6 border-b border-border">
+          <label class="text-title font-medium">Invite only</label>
+
+          <p class="mt-2 text-text">This poll is only for participants with voting rights. Please make sure to invite
+            your participants via Email or generate your voting tokens manually.</p>
+          <button (click)="isOpenModalShare = true"
+                  class="primaryBtn py-2 px-4 w-full mt-4 flex items-center justify-center gap-x-2 font-normal"
+                  type="button">
+            <svg-icon fontSize="20px" key="user-add"></svg-icon>
+            <span class="text-base">Invite participants</span>
+          </button>
+
+          <!--          Modal share -->
+          <app-share-modal (openModalShareChange)="isOpenModalShare = $event" [isOpenModalShare]="isOpenModalShare"
+                           [pollDetail]="pollDetail"></app-share-modal>
+        </div>
+
+        <div class="">
+          <label class="text-title font-medium">Share the link</label>
+
+          <div class="mt-1 relative">
+            <input #inputLink
+                   class="block mt-1 w-full py-2 pl-3 pr-11 rounded-md border border-border focus:ring-2 focus:ring-inputHighlight outline-none"
+                   readonly type="text" value="{{ linkPoll }}"/>
+
+            <button (click)="onClipboardCopy(inputLink.value)"
+                    class="secondaryBtn flex items-center justify-center absolute top-0 right-0 p-2 !ring-offset-0 !bg-white"
+                    type="button">
+              <svg-icon fontSize="20px" key="copy"></svg-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--  Comments -->
+  <app-comment *ngIf="pollDetail" [pollDetail]="pollDetail"></app-comment>
+</div>

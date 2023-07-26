@@ -1,0 +1,36 @@
+<div *ngIf="select" class="relative">
+  <button
+    #btnToggle
+    (click)="toggleMenu()"
+    class="w-1/2 relative text-start rounded-md text-base text-textGrayLight py-2 px-3 border border-inputBorder focus:outline-none focus:ring-2 focus:ring-inputHighlight cursor-default before:absolute before:inset-0"
+    type="button">
+    <div *ngIf="currentOption" class="flex items-center gap-x-3">
+      <svg-icon [key]="currentOption.icon" class="" fontSize="20px"></svg-icon>
+      <span class="text-textGrayDark"> {{ currentOption.label }} </span>
+    </div>
+    <div class="inline-flex flex-col absolute top-1/2 right-4 -translate-y-1/2">
+      <svg-icon class="font-semibold" fontSize="12px" key="caret-up"></svg-icon>
+      <svg-icon class="" fontSize="12px" key="caret-down"></svg-icon>
+    </div>
+  </button>
+
+  <ul
+    #menuToggle
+    [style.visibility]="isOpenMenu ? 'visible' : 'hidden'"
+    class="absolute top-full bg-white left-0 w-1/2 text-start rounded-md text-base text-textGrayLight py-1 mt-1 border border-inputBorder z-30">
+    <li (click)="setCurrent(option.value)" *ngFor="let option of options">
+      <div
+        class="group hover:bg-inputHighlight hover:text-white transition-colors relative flex items-center gap-x-3 py-2 pl-3 pr-9">
+        <svg-icon [key]="option.icon" class="" fontSize="20px"></svg-icon>
+        <span *ngIf="currentValue" [style.font-weight]="option.value == currentValue ? '600' : '400'"
+              class="text-title group-hover:text-white transition-colors">{{ option.label }}</span>
+
+        <svg-icon
+          *ngIf="option.value == currentValue"
+          class="absolute top-1/2 right-4 -translate-y-1/2 text-inputHighlight group-hover:text-white transition-colors"
+          fontSize="20px"
+          key="check"></svg-icon>
+      </div>
+    </li>
+  </ul>
+</div>

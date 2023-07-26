@@ -1,0 +1,111 @@
+<div class="relative z-400">
+  <button
+    (click)="toggleMenuAction()"
+    class="ml-auto relative btn-menu-poll-item w-8 h-8 flex items-center justify-center rounded-full group-hover:bg-white transition-colors focus:outline-none focus:ring-2 focus:ring-inputHighlight before:absolute before:inset-0 before:z-10 hover:bg-gray-100 z-20"
+    type="button">
+    <svg-icon class="" fontSize="25px" key="menu"></svg-icon>
+  </button>
+
+  <div
+    [style]="{visibility: isOpenMenuAction ? 'visible' : 'hidden', transform: isOpenMenuAction ? 'scale(1)' : 'scale(0.95)'}"
+    class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-boxBorder origin-top-right z-30 text-text divide-y divide-border">
+    <div class="py-1">
+      <ul class="">
+        <li>
+          <a class="py-2 px-4 flex items-center gap-x-3 hover:bg-gray-100 transition-colors"
+             routerLink="{{ '/polls/' + poll.uuid + '/edit' }}">
+            <svg-icon class="" fontSize="18px" key="pencil-fill"></svg-icon>
+            <span class="">Edit</span>
+          </a>
+
+          <a class="py-2 px-4 flex items-center gap-x-3 hover:bg-gray-100 transition-colors"
+             routerLink="{{ '/duplicate/' + poll.uuid }}">
+            <svg-icon class="" fontSize="18px" key="copy-fill"></svg-icon>
+            <span class="">Duplicate</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!--    <div class="py-1">-->
+    <!--      <ul class="">-->
+    <!--        <li>-->
+    <!--              <span-->
+    <!--                class="cursor-pointer py-2 px-4 flex items-center gap-x-3 hover:bg-gray-100 transition-colors">-->
+    <!--                  <svg-icon class="" fontSize="18px" key="setting-fill"></svg-icon>-->
+    <!--                  <span class="">Settings</span>-->
+    <!--              </span>-->
+    <!--        </li>-->
+    <!--      </ul>-->
+    <!--    </div>-->
+
+    <div class="py-1">
+      <ul class="">
+        <li>
+          <button (click)="isOpenShareModel = true; toggleMenu.emit(false)"
+                  class="cursor-pointer w-full py-2 px-4 flex items-center gap-x-3 hover:bg-gray-100 transition-colors"
+                  type="button">
+            <svg-icon class="" fontSize="18px" key="user-add"></svg-icon>
+            <span class="">Invite</span>
+          </button>
+          <!--          <span-->
+          <!--            class="cursor-pointer py-2 px-4 flex items-center gap-x-3 hover:bg-gray-100 transition-colors">-->
+          <!--                  <svg-icon class="" fontSize="18px" key="share"></svg-icon>-->
+          <!--                  <span class="">Share</span>-->
+          <!--          </span>-->
+        </li>
+      </ul>
+    </div>
+
+    <div class="py-1">
+      <ul class="">
+        <li>
+          <!--              <span-->
+          <!--                class="cursor-pointer py-2 px-4 flex items-center gap-x-3 hover:bg-gray-100 transition-colors">-->
+          <!--                  <svg-icon class="" fontSize="18px" key="analytics"></svg-icon>-->
+          <!--                  <span class="">Vote analytics</span>-->
+          <!--              </span>-->
+
+          <button (click)="exportVotes()"
+                  class="cursor-pointer w-full py-2 px-4 flex items-center gap-x-3 hover:bg-gray-100 transition-colors"
+                  type="button">
+            <svg-icon class="" fontSize="18px" key="export"></svg-icon>
+            <span class="">Export results</span>
+          </button>
+
+        </li>
+      </ul>
+    </div>
+
+    <div class="py-1">
+      <ul class="">
+        <li>
+          <button (click)="onResetPoll()"
+                  class="cursor-pointer py-2 px-4 flex items-center gap-x-3 hover:bg-gray-100 transition-colors w-full"
+                  type="button">
+            <svg-icon class="" fontSize="18px" key="reset"></svg-icon>
+            <span class="">Reset</span>
+          </button>
+
+          <button (click)="onDeletePoll()"
+                  class="cursor-pointer w-full py-2 px-4 flex items-center gap-x-3 hover:bg-gray-100 transition-colors text-red-400"
+                  type="button">
+            <svg-icon class="" fontSize="18px" key="delete"></svg-icon>
+            <span class="">Delete</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<app-share-modal (openModalShareChange)="isOpenShareModel = $event; toggleMenu.emit(false)"
+                 [isOpenModalShare]="isOpenShareModel"
+                 [pollDetail]="poll"></app-share-modal>
+
+<app-modal-basic (doAction)="onHandelActionModal($event)"
+                 (openModalChange)="isOpenModalAction = $event; toggleMenu.emit(false)" [action]="actionModal"
+                 [isOpenModal]="isOpenModalAction"
+                 [message]="messageModal"
+                 [title]="titleModal"></app-modal-basic>

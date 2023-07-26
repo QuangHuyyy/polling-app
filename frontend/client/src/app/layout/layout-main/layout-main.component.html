@@ -1,0 +1,24 @@
+<div class="wrapper">
+  <!--  Header -->
+  <app-header></app-header>
+
+  <div class="bg-pageBg py-10">
+    <div class="my-container">
+      <div class="grid grid-cols-12 gap-x-8">
+        <div class="col-span-2">
+          <app-navigation></app-navigation>
+        </div>
+        <div class="col-span-10">
+          <div class="relative">
+            <app-loader></app-loader>
+          </div>
+
+          <router-outlet></router-outlet>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--  Footer -->
+  <app-footer></app-footer>
+</div>

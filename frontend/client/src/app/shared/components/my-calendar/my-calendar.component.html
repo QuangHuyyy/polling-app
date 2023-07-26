@@ -1,0 +1,37 @@
+<div class="p-4 border border-inputBorder rounded-md">
+  <!--  Calendar header -->
+  <div class="flex items-center justify-between mb-2">
+    <div class="flex gap-x-2 text-lg">
+      <span class="font-semibold text-title">{{ date | date:'MMMM' }}</span>
+      <span class="text-textGrayDark">{{ date | date: 'YYYY' }}</span>
+    </div>
+
+    <div class="flex items-center gap-x-0.5">
+      <button (click)="setMonth(-1)" class="inline-flex items-center justify-center p-1 rounded-full hover:bg-border"
+              type="button">
+        <svg-icon class="-rotate-90" fontSize="24px" key="caret-up"></svg-icon>
+      </button>
+      <button (click)="setMonth(1)" class="inline-flex items-center justify-center p-1 rounded-full hover:bg-border"
+              type="button">
+        <svg-icon class="rotate-90" fontSize="24px" key="caret-up"></svg-icon>
+      </button>
+    </div>
+  </div>
+
+  <!--  Calendar day -->
+  <div class="grid grid-cols-7">
+    <span *ngFor="let day of days"
+          class="uppercase text-xs text-gray-500 w-8 h-8 flex items-center justify-center mx-auto">{{ day }}</span>
+  </div>
+
+  <!--  Calendar date -->
+  <div class="grid grid-cols-7">
+    <!--    Dates of prev month -->
+    <button (click)="toggleSelectDate($event, d)"
+            *ngFor="let d of dates"
+            [disabled]="isPrevDate(d) && !isToday(d)"
+            [ngClass]="{'isSameMonth': !isSameMonth(d), 'isPrevDate': isPrevDate(d), 'isToday': isToday(d), 'isSelectedDate': isSelectedDate(d) }"
+            class="w-8 h-8 mx-auto border border-transparent bg-white rounded-full text-sm text-textGrayDark flex items-center justify-center hover:bg-gray-100"
+            type="button">{{ d | date:'d' }}</button>
+  </div>
+</div>

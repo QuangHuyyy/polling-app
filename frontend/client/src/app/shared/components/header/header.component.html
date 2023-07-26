@@ -1,0 +1,78 @@
+<header class="h-16 ring-1 ring-gray-300 sticky top-0 bg-white z-40">
+  <div class="my-container h-full">
+    <div class="flex items-center justify-between h-full">
+      <!--        Logo -->
+      <a class="flex items-center gap-x-1" routerLink="/">
+        <svg-icon fontSize="24px" key="logo"></svg-icon>
+        <h1 class="text-3xl">StrawPoll</h1>
+      </a>
+
+      <!--        Header left -->
+      <div class="">
+        <div *ngIf="!isLoggedIn" class="space-x-3 items-center">
+          <a class="px-4 py-2 font-medium text-textGrayDark border border-transparent rounded-md"
+             routerLink="/auth/login">Login</a>
+          <a class="px-4 py-2 font-medium text-white border border-primaryButtonBorder bg-primaryButtonBg rounded-md"
+             routerLink="/auth/register">Sign up</a>
+        </div>
+
+
+        <div [ngClass]="{'hidden': !isLoggedIn}" class="flex gap-x-8 items-center">
+          <!--          Search input -->
+          <div class="relative">
+            <svg-icon class="absolute top-1/2 -translate-y-1/2 left-3 pointer-events-none" fontSize="18px"
+                      key="search"></svg-icon>
+            <input
+              #inputSearch
+              (keyup.enter)="onSearch(inputSearch.value)" class="w-80 py-2 pl-10 pr-3 border border-inputBorder rounded-md text-textGrayDark placeholder-gray-500 focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-inputHighlight focus:border-inputHighlight transition-all"
+              placeholder="Search" type="search"/>
+          </div>
+
+          <!--          Account -->
+          <div class="relative">
+            <button #toggleAccountBtn
+                    (click)="toggleMenuAccount()"
+                    *ngIf="currentUser$ | async as currentUser"
+                    class="flex items-center gap-x-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-inputHighlight relative before:absolute before:inset-0 before:z-10">
+              <div *ngIf="currentUser.avatar != null" class="w-8 h-8 rounded-full overflow-hidden">
+                <img alt="avatar" class="w-full h-full" src="{{ currentUser.avatar }}"/>
+              </div>
+              <div *ngIf="currentUser.avatar == null"
+                   class="w-8 h-8 flex items-center justify-center rounded-full bg-imageIconPollBg">
+                <span class="text-white font-medium uppercase text-xl">{{ currentUser.name.charAt(0)}}</span>
+              </div>
+              <span
+                class="text-textGrayDark font-medium">{{ currentUser.name }}</span>
+            </button>
+
+            <!--            Submenu account -->
+            <div
+              #menuAccount
+              [style.visibility]="isMenuOpen ? 'visible' : 'hidden'"
+              class="absolute origin-top-right z-30 invisible top-full right-0 mt-2 rounded-md shadow-lg ring-1 ring-border w-56 bg-white divide-y divide-border">
+              <div class="py-1">
+                <a class="flex items-center gap-x-3 px-4 py-2 hover:bg-gray-100" routerLink="">
+                  <svg-icon class="text-text" fontSize="20px" key="home"></svg-icon>
+                  <span class="">Dashboard</span>
+                </a>
+
+                <a class="flex items-center gap-x-3 px-4 py-2 hover:bg-gray-100" routerLink="">
+                  <svg-icon class="text-text" fontSize="20px" key="setting"></svg-icon>
+                  <span class="">Settings</span>
+                </a>
+              </div>
+              <div class="py-1">
+                <button (click)="logout()" class="flex items-center gap-x-3 px-4 py-2 hover:bg-gray-100 w-full"
+                        type="button">
+                  <svg-icon class="text-text" fontSize="20px" key="sign-out"></svg-icon>
+                  <span class="">Sign out</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,126 @@
+<form #formEdit="ngForm"
+      (ngSubmit)="onEditSubmit()"
+      [formGroup]="fEditCommentItem"
+      [ngClass]="{'mt-6': comment.levelComment != 1, 'ml-10': comment.levelComment == 2, 'ml-20': comment.levelComment == 3 }"
+      class="text-start" novalidate>
+  <p *ngIf="comment.oldParentId != null" class="ml-10">
+    The comment {{ comment.name }} is replying to has been deleted.
+  </p>
+  <div class="flex space-x-3">
+    <div class="shrink-0">
+      <img *ngIf="comment.avatarUrl != null; else noAvatar" alt="avatar"
+           class="w-10 h-10 rounded-full"
+           src="{{ comment.avatarUrl }}"/>
+
+      <ng-template #noAvatar>
+        <div
+          class="w-8 h-8 flex items-center justify-center rounded-full bg-imageIconPollBg">
+          <span class="text-white font-medium uppercase text-xl">{{ comment.name.charAt(0) }}</span>
+        </div>
+      </ng-template>
+    </div>
+
+    <div class="grow">
+      <div class="text-sm">
+        <p class="font-medium text-title text-base">{{ comment.name }}</p>
+      </div>
+
+      <div class="">
+        <div *ngIf="isEditComment; else noEditComment" class="">
+          <textarea
+            class="mt-3 focus:outline-none focus:ring-2 focus:ring-inputHighlight border block border-boxBorder rounded-md py-2 px-3 w-full"
+            formControlName="message" id="inputEditComment"
+            placeholder="Add a comment" rows="2"></textarea>
+          <p *ngIf="formEdit.submitted && fEditCommentItem.get('message')?.errors?.['required']" class="text-red-500">
+            Please enter comment!</p>
+
+          <div class="mt-3 flex items-center gap-x-3">
+            <button class="primaryBtn py-2 px-4" type="submit">Save</button>
+            <button (click)="onCancelEdit()" class="secondaryBtn py-2 px-4" type="button">Cancel</button>
+          </div>
+        </div>
+
+        <ng-template #noEditComment>
+          <div class="mt-1 text-sm text-text">
+            <p class="whitespace-pre-line">{{ fEditCommentItem.get("message")?.value }}</p>
+          </div>
+        </ng-template>
+
+        <div [ngClass]="{'hidden': isEditComment}" class="flex items-center mt-2 text-sm space-x-2">
+          <span class="text-gray-500 custom-text font-medium">{{ comment.createdAt | dateAgo }}</span>
+
+          <svg-icon fontSize="4px" key="dot"></svg-icon>
+
+          <label (click)="isEditComment = false; isReplyComment = true" class="text-title font-medium cursor-pointer"
+                 for="inputReplyComment">Reply</label>
+
+          <span *ngIf="currentUser != null && currentUser.uuid == comment.userUuid"
+                class="flex items-center space-x-2">
+                    <svg-icon fontSize="4px" key="dot"></svg-icon>
+                    <label (click)="isEditComment = true; isReplyComment = false"
+                           class="text-title font-medium cursor-pointer"
+                           for="inputEditComment">Edit</label>
+
+                    <svg-icon fontSize="4px" key="dot"></svg-icon>
+                    <button (click)="onDelete()" class="text-title font-medium" type="button">Delete</button>
+                  </span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</form>
+
+<app-comment-item (reloadComments)="onReloadComments($event)" *ngFor="let reply of comment.replies"
+                  [comment]="reply"
+                  [ownerUserUuid]="reply.userUuid" [pollUuid]="pollUuid">
+</app-comment-item>
+
+<form #formReply="ngForm"
+      (ngSubmit)="onReplyCommentSubmit()"
+      [formGroup]="fReplyCommentItem"
+      [ngClass]="{'mt-6': comment.levelComment != 1, 'ml-10': comment.levelComment == 2, 'ml-20': comment.levelComment == 3 }"
+      class="text-start" novalidate>
+  <div *ngIf="isReplyComment" [ngClass]="{'ml-10': comment.levelComment != 3}" class="mt-3 flex gap-x-3">
+    <div *ngIf="currentUser !== null" class="shrink-0">
+      <img *ngIf="currentUser.avatar" alt="avt"
+           class="w-10 h-10 rounded-full"
+           src="{{ currentUser.avatar }}"/>
+
+      <div *ngIf="!currentUser.avatar" class="w-8 h-8 flex items-center justify-center rounded-full bg-imageIconPollBg">
+              <span
+                class="text-white font-medium uppercase text-xl">{{ currentUser.name.charAt(0) }}</span>
+      </div>
+    </div>
+
+    <div *ngIf="currentUser == null"
+         class="shrink-0 w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+      <svg-icon fontSize="24px" key="avatar"></svg-icon>
+    </div>
+
+    <div class="grow flex flex-col gap-y-3">
+      <input [ngClass]="{'hidden': currentUser != null}"
+             class="block w-full py-2 px-3 rounded-md border border-border focus:ring-2 focus:ring-inputHighlight outline-none"
+             formControlName="name"
+             placeholder="Enter your name"
+             type="text"/>
+      <p *ngIf="isSubmitReply && fReplyCommentItem.get('name')?.errors?.['required']" class="text-red-500">Please
+        enter your name!</p>
+
+      <textarea
+        class="focus:outline-none focus:ring-2 focus:ring-inputHighlight border block border-boxBorder rounded-md py-2 px-3 w-full"
+        formControlName="message"
+        id="inputReplyComment"
+        placeholder="Add a comment" rows="3"></textarea>
+
+      <p *ngIf="isSubmitReply && fReplyCommentItem.get('message')?.errors?.['required']" class="text-red-500">
+        Please
+        enter comment!</p>
+      <div class="text-end mt-3">
+        <button (click)="onCancelReply()" class="secondaryBtn py-2 px-4" type="button">Cancel</button>
+
+        <button class="ml-3 primaryBtn py-2 px-4" type="submit">Reply</button>
+      </div>
+    </div>
+  </div>
+</form>

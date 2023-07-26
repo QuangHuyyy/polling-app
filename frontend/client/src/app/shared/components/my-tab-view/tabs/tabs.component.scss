@@ -1,0 +1,7 @@
+.active {
+  @apply border-indigo-500 text-inputHighlight;
+}
+
+.no-active {
+  @apply border-transparent text-text hover:border-gray-300 hover:text-gray-700;
+}

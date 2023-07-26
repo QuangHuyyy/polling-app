@@ -1,0 +1,27 @@
+<div class="max-w-3xl mx-auto">
+  <div class="text-center mb-8">
+    <h1 class="font-semibold leading-7 text-3xl truncate text-title">Search Results</h1>
+    <p class="mt-2 text-sm text-text">Find a poll quickly and easily</p>
+  </div>
+
+  <div class="primaryBox">
+    <div class="space-y-3 text-start">
+      <div class="text-xl font-medium text-textGrayDark">Search results for "{{ query }}"</div>
+
+      <p *ngIf="query == ''" class="text-red-500 text-base">Please use at least 3 characters for your search string.</p>
+
+      <p *ngIf="pollsResultSearch.length == 0" class="text-text text-base">Your search query did not match any
+        results.</p>
+
+      <div *ngIf="pollsResultSearch.length != 0" class="">
+        <p class="text-lg mb-1">Poll results</p>
+
+        <ul class="list-disc list-inside">
+          <li *ngFor="let pollResult of pollsResultSearch" class="">
+            <a class="text-indigo-500 text-base" routerLink="/polls/{{pollResult.uuid}}">{{pollResult.title}}</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

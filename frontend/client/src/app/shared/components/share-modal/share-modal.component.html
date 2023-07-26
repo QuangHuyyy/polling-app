@@ -1,0 +1,154 @@
+<div [ngClass]="{'hidden': !isOpenModalShare}" class="fixed inset-0 z-50 overflow-y-auto">
+  <div class="flex items-end justify-center min-h-screen text-center">
+    <div (click)="isOpenModalShare = false; openModalShareChange.emit(false)" [ngClass]="{'hidden': !isOpenModalShare}"
+         class="block fixed bg-text opacity-80 inset-0 z-40"></div>
+    <form #formShare="ngForm" (ngSubmit)="onSubmitShare()" [formGroup]="fSharePoll"
+          [ngClass]="{'hidden': !isOpenModalShare}"
+          class="relative z-50 block align-bottom bg-white rounded-lg text-left overflow-visible shadow-xl my-8 flex-grow  sm:w-full max-w-lg">
+      <div class="max-w-lg w-[512px] bg-white rounded-lg">
+        <div class="divide-y divide-gray-200">
+          <div class="relative text-md px-4 pt-4 pb-3 flex justify-start items-center gap-x-2">
+            <svg-icon fontSize="24px" key="user-add"></svg-icon>
+            <span class="text-base">Invite participants</span>
+
+            <button (click)="isOpenModalShare = false; openModalShareChange.emit(false)"
+                    class="absolute top-4 right-4 flex items-center justify-center rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    type="button">
+              <svg-icon fontSize="24px" key="x"></svg-icon>
+            </button>
+          </div>
+
+          <div class="px-4 py-2">
+            <div
+              class="border-b border-gray-200">
+              <ul class="-mb-px flex space-x-8">
+                <li class="">
+                  <button
+                    [ngClass]="{ 'border-indigo-500 text-indigo-600 hover:border-indigo-500 hover:text-indigo-600': true}"
+                    class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-transparent text-text hover:text-gray-700 hover:border-gray-300"
+                    type="button">
+                    Email
+                  </button>
+                </li>
+                <!--                      <li class="">-->
+                <!--                        <button-->
+                <!--                          [ngClass]="{ 'border-indigo-500 text-indigo-600 hover:border-indigo-500 hover:text-indigo-600': false}"-->
+                <!--                          class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-transparent text-text hover:text-gray-700 hover:border-gray-300"-->
+                <!--                          type="button">-->
+                <!--                          Manual-->
+                <!--                        </button>-->
+                <!--                      </li>-->
+              </ul>
+            </div>
+
+            <div class="mt-6">
+              <div class="space-y-3">
+                <div class="flex flex-col">
+                  <label class="text-title font-medium">Email Address(es)</label>
+                  <textarea
+                    class="mt-1 border border-border py-2 px-3 rounded-lg focus:outline-none ring-offset-0 focus:ring-2 ring-inputHighlight"
+                    formControlName="emailAddresses"
+                    placeholder="Enter emails (comma separated)"
+                    rows="3"></textarea>
+                </div>
+
+                <div class="">
+                  <button
+                    class="flex items-center justify-center primaryBtn gap-x-2 py-2 px-4 text-sm ml-auto"
+                    type="submit">
+                    <svg-icon fontSize="20px" key="email"></svg-icon>
+                    <span class="">Send invitation</span>
+                  </button>
+                </div>
+
+                <p
+                  *ngIf="fSharePoll.get('emailAddresses')?.hasError('required') && fSharePoll.get('emailAddresses')?.touched"
+                  class="text-red-500">Please enter a email address!</p>
+
+                <p
+                  *ngIf="fSharePoll.get('emailAddresses')?.errors?.['pattern']"
+                  class="text-red-500">Invalid email addresses!</p>
+
+                <div class="pt-3 text-text text-center text-sm">
+                  <span class="">Hint: Your name and email address will be added to the invitation email and its "reply-to" field.</span>
+                </div>
+
+                <div class="pt-4">
+                  <div class="overflow-hidden border border-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200">
+                      <thead class="bg-gray-50">
+                      <tr>
+                        <th
+                          class="px-3 py-3 text-left text-xs font-medium text-text uppercase tracking-wider whitespace-nowrap">
+                          Email Address
+                        </th>
+                        <th
+                          class="px-3 py-3 text-left text-xs font-medium text-text uppercase tracking-wider whitespace-nowrap">
+                          Email Status
+                        </th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr *ngFor="let token of tokensSent" class="bg-white border-b border-border">
+                        <td
+                          class="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          <div class="flex items-center gap-x-1">
+                            <span>{{ token.email }}</span>
+                            <svg-icon *ngIf="token.used" class="text-inputHighlight"
+                                      fontSize="20px" key="check-circle"></svg-icon>
+                          </div>
+                        </td>
+                        <td
+                          class="px-3 py-4 whitespace-nowrap text-sm text-text flex items-center justify-between">
+                          <div *ngIf="token.token != null"
+                               class="whitespace-nowrap flex items-center gap-x-1">
+                            <svg-icon class="text-green-500" fontSize="20px" key="check"></svg-icon>
+                            <span class="">send</span>
+                          </div>
+
+                          <div *ngIf="token.token == null"
+                               class="whitespace-nowrap flex items-center gap-x-1">
+                            <svg-icon class="text-yellow-500" fontSize="20px" key="warning"></svg-icon>
+                            <span class="">duplicate</span>
+                          </div>
+
+                          <div class="flex items-center justify-center">
+                            <button (click)="removeToken(token.id)"
+                                    class="text-red-500 block w-5 h-5"
+                                    type="button">
+                              <svg-icon fontSize="20px" key="x"></svg-icon>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+
+                      <tr class="bg-gray-50">
+                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          Summary
+                        </td>
+                        <td class="px-3 py-4 whitespace-nowrap text-sm text-text flex items-center gap-x-1">
+                          <svg-icon class="text-green-500" fontSize="20px" key="check"></svg-icon>
+                          <span>{{ tokenValidQuantity }}/{{ tokensSent.length }}</span>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-5 px-4 py-3">
+            <button (click)="isOpenModalShare = false; openModalShareChange.emit(false)"
+                    class="secondaryBtn py-2 px-4 text-title"
+                    type="button">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+
+  </div>
+</div>

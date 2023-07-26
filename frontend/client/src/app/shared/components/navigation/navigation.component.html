@@ -1,0 +1,59 @@
+<nav class="divide-y divide-border sticky top-24 z-10">
+  <ul class="space-y-1 pb-8">
+    <li>
+      <a [routerLinkActiveOptions]="{ exact: true }"
+         class="group flex items-center gap-x-3 py-2 px-3 rounded-md text-textGrayDark font-medium"
+         routerLink="/account" routerLinkActive="navigation-active">
+        <svg-icon class="group-hover:text-textGrayDark transition-colors text-textGrayLight" fontSize="24px"
+                  key="home"></svg-icon>
+        <span class="truncate">Dashboard</span>
+      </a>
+    </li>
+
+    <li>
+      <a class="group flex items-center gap-x-3 py-2 px-3 rounded-md text-textGrayDark font-medium" routerLink="/create"
+         routerLinkActive="navigation-active">
+        <svg-icon class="group-hover:text-textGrayDark transition-colors text-textGrayLight" fontSize="24px"
+                  key="create"></svg-icon>
+        <span class="truncate">Create Poll</span>
+      </a>
+    </li>
+
+    <!--    <li>-->
+    <!--      <a class="group flex items-center gap-x-3 py-2 px-3 rounded-md text-textGrayDark font-medium"-->
+    <!--         routerLink="schedule" routerLinkActive="navigation-active">-->
+    <!--        <svg-icon class="group-hover:text-textGrayDark transition-colors text-textGrayLight" fontSize="24px"-->
+    <!--                  key="schedule"></svg-icon>-->
+    <!--        <span class="truncate">Schedule Meeting</span>-->
+    <!--      </a>-->
+    <!--    </li>-->
+
+    <li>
+      <a class="group flex items-center gap-x-3 py-2 px-3 rounded-md text-textGrayDark font-medium" routerLink="themes"
+         routerLinkActive="navigation-active">
+        <svg-icon class="group-hover:text-textGrayDark transition-colors text-textGrayLight" fontSize="24px"
+                  key="theme"></svg-icon>
+        <span class="truncate">Themes</span>
+      </a>
+    </li>
+
+    <li>
+      <a class="group flex items-center gap-x-3 py-2 px-3 rounded-md text-textGrayDark font-medium"
+         routerLink="settings" routerLinkActive="navigation-active">
+        <svg-icon class="group-hover:text-textGrayDark transition-colors text-textGrayLight" fontSize="24px"
+                  key="setting"></svg-icon>
+        <span class="truncate">Settings</span>
+      </a>
+    </li>
+  </ul>
+
+  <div class="pt-8">
+    <button (click)="logout()"
+            class="group flex items-center gap-x-3 py-2 px-3 rounded-md text-textGrayDark font-medium"
+            type="button">
+      <svg-icon class="group-hover:text-textGrayDark transition-colors text-textGrayLight" fontSize="24px"
+                key="sign-out"></svg-icon>
+      <span class="truncate">Sign out</span>
+    </button>
+  </div>
+</nav>

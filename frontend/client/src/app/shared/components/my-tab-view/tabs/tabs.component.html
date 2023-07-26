@@ -1,0 +1,11 @@
+<div class="border-b border-border">
+  <nav class="-mb-px flex space-x-8">
+    <span (click)="selectTab(tab)" *ngFor="let tab of tabs"
+          [ngClass]="{ 'active': tab.active, 'no-active': !tab.active }"
+          class="cursor-pointer whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+      {{ tab.title }}
+    </span>
+  </nav>
+</div>
+
+<ng-content select="app-tab"></ng-content>

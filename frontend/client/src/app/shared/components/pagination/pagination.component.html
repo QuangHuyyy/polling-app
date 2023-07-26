@@ -1,0 +1,33 @@
+<div *ngIf="pageable"
+     class="bg-white flex items-center justify-between">
+  <div class="flex-1 flex items-center justify-between">
+    <p class="text-sm text-gray-700">Showing {{ pageable.size * pageable.currentPage + 1 }}
+      to {{ pageable.size * pageable.currentPage + pageable.content.length }}
+      of {{ pageable.totalElements }} results</p>
+
+    <nav *ngIf="pageable.totalPages" class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+      <!--          Button previous -->
+      <button
+        (click)="pageNumberChange.emit(pageable.currentPage - 1)"
+        [disabled]="pageable.first" [ngClass]="{'disable': pageable.first}"
+        class="paginationBtn paginationPrevBtn"
+        type="button">
+        <svg-icon fontSize="16px" key="caret-left"></svg-icon>
+      </button>
+
+      <button (click)="pageNumberChange.emit(number - 1)" *ngFor="let number of pageNumbers"
+              [disabled]="(number - 1 == pageable.currentPage)"
+              [ngClass]="{'active cursor-not-allowed': (number - 1 == pageable.currentPage)}"
+              class="paginationBtn paginationNumberBtn">{{ number }}</button>
+
+      <!--          Button next -->
+      <button
+        (click)="pageNumberChange.emit(pageable.currentPage + 1)"
+        [disabled]="pageable.last" [ngClass]="{'disable': pageable.last}"
+        class="paginationBtn paginationNextBtn"
+        type="button">
+        <svg-icon fontSize="16px" key="caret-right"></svg-icon>
+      </button>
+    </nav>
+  </div>
+</div>

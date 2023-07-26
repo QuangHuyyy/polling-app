@@ -1,0 +1,89 @@
+<div class="bg-gray-50 h-screen">
+  <div class="flex items-center justify-end gap-x-4 text-sm p-4">
+    <span>Already have an account?</span>
+    <a class="py-2 px-4 text-title font-medium secondaryBtn" routerLink="../login">Login</a>
+  </div>
+
+  <div class="bg-gray-50">
+    <div class="py-6 px-8 flex items-center justify-center max-w-lg mx-auto flex-col">
+      <div class="flex items-center justify-center flex-col">
+        <a class="" routerLink="/">
+          <svg-icon fontSize="40px" key="logo"></svg-icon>
+        </a>
+        <h2 class="text-3xl mt-6 font-semibold">Create a free account</h2>
+        <p class="mt-2 text-sm">Or <a class="text-link" routerLink="../login">log in to your account</a></p>
+      </div>
+
+      <div class="mt-8 primaryBox w-full px-10 text-start">
+        <form #form="ngForm" (ngSubmit)="onSubmitForm()" [formGroup]="fRegister" class="flex flex-col gap-y-6"
+              novalidate>
+          <div class="">
+            <label class="font-medium text-gray-700" for="name">Name</label>
+            <input
+              class="mt-1 block py-2 w-full px-3 input text-textGrayDark"
+              formControlName="name"
+              id="name" type="text"/>
+            <span
+              *ngIf="(fRegister.get('name')?.errors?.['required'] && fRegister.get('name')?.touched) || (fRegister.get('name')?.errors?.['required'] && form.submitted)"
+              class="block text-sm text-validateText mt-2">Please enter your name!</span>
+
+          </div>
+
+          <div class="">
+            <label class="font-medium text-gray-700" for="email">Email</label>
+            <input class="mt-1 block py-2 w-full px-3 input text-textGrayDark"
+                   formControlName="email"
+                   id="email" type="email"/>
+
+            <span
+              *ngIf="(fRegister.get('email')?.errors?.['required'] && fRegister.get('email')?.touched) || (fRegister.get('email')?.errors?.['required'] && form.submitted)"
+              class="block text-sm text-validateText mt-2">Please enter your email!</span>
+            <span
+              *ngIf="(fRegister.get('email')?.errors?.['email'] && fRegister.get('email')?.touched) || (fRegister.get('email')?.errors?.['email'] && form.submitted)"
+              class="block text-sm text-validateText mt-2">Email address is invalid!</span>
+          </div>
+
+          <div class="" formGroupName="pwg">
+            <div class="">
+              <label class="font-medium text-gray-700" for="password">Password</label>
+              <input class="mt-1 block py-2 w-full px-3 input text-textGrayDark"
+                     formControlName="password"
+                     id="password" type="password"/>
+
+              <span
+                *ngIf="(pwg.get('password')?.errors?.['required'] && pwg.get('password')?.touched) || (pwg.get('password')?.errors?.['required'] && form.submitted)"
+                class="block text-sm text-validateText mt-2">Please enter your password!</span>
+              <span
+                *ngIf="(pwg.get('password')?.errors?.['minlength'] && pwg.get('password')?.touched) || (pwg.get('password')?.errors?.['minlength'] && form.submitted)"
+                class="block text-sm text-validateText mt-2">Password must be at least 8 characters long!</span>
+            </div>
+            <div class="mt-6">
+              <label class="font-medium text-gray-700" for="confirmPassword">Confirm password</label>
+              <input class="mt-1 block py-2 w-full px-3 input text-textGrayDark"
+                     formControlName="confirmPassword"
+                     id="confirmPassword" type="password"/>
+
+              <span
+                *ngIf="(pwg.get('confirmPassword')?.errors?.['required'] && pwg.get('confirmPassword')?.touched) || (pwg.get('confirmPassword')?.errors?.['required'] && form.submitted); else notMatch"
+                class="block text-sm text-validateText mt-2">Please enter confirm password!</span>
+              <ng-template #notMatch>
+                <span
+                  *ngIf="(pwg.hasError('passwordnotmatch') && pwg.get('confirmPassword')?.touched) || (pwg.hasError('passwordnotmatch') && form.submitted)"
+                  class="block text-sm text-validateText mt-2">Confirm password does not match!</span>
+              </ng-template>
+
+            </div>
+          </div>
+
+          <div *ngIf="form.submitted && isRegisterFail"
+               class="rounded-md bg-red-50 border border-transparent p-4 flex items-center gap-x-2 text-red-800">
+            <svg-icon class="" fontSize="20px" key="x-circle-fill"></svg-icon>
+            <span class="">{{errorMessage}}</span>
+          </div>
+
+          <button class="primaryBtn py-2 px-4" type="submit">Sign up</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

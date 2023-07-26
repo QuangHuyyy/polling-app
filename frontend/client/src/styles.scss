@@ -1,0 +1,119 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import "./assets/scss/font";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-poppins text-sm font-normal text-text;
+  }
+
+  h1 {
+    @apply text-2xl font-semibold leading-7 text-title;
+  }
+
+  h2 {
+    @apply text-lg font-medium text-title;
+  }
+
+  h3 {
+    @apply text-sm font-medium text-textGrayDark;
+  }
+
+  p {
+    @apply text-sm font-normal text-text;
+  }
+
+  a {
+    @apply inline-block;
+  }
+
+  img {
+    @apply object-cover;
+  }
+
+  input[type='radio'], input[type='checkbox'] {
+    @apply cursor-pointer border border-text bg-white bg-transparent appearance-none p-0 inline-block align-middle bg-origin-border select-none text-blue-600 focus:ring-2 focus:ring-inputHighlight focus:ring-offset-2 w-5 h-5;
+  }
+
+  input[type='radio'] {
+    @apply rounded-full checked:border-inputHighlight checked:border-[6px];
+  }
+
+  input[type='checkbox'] {
+    &:checked {
+      background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+    }
+
+    &.switches {
+      &:checked {
+        background-image: unset;
+      }
+    }
+
+    @apply rounded checked:bg-inputHighlight checked:bg-[length:100%_100%] checked:bg-center bg-no-repeat;
+  }
+}
+
+@layer components {
+  .wrapper {
+    @apply w-full max-w-full mx-auto relative;
+  }
+
+  .my-container {
+    @apply max-w-screen-xl mx-auto pr-8 pl-8;
+  }
+
+  .primaryBtn {
+    @apply rounded-md bg-primaryButtonBg text-primaryButtonText border border-transparent font-medium outline-none focus:ring-2 focus:ring-offset-2 focus:ring-inputHighlight hover:bg-primaryButtonBgHover;
+  }
+
+  .secondaryBtn {
+    @apply rounded-md bg-secondButtonBg text-secondButtonText border border-secondButtonBorder font-medium outline-none focus:ring-2 focus:ring-offset-2 focus:ring-inputHighlight hover:border-gray-400;
+  }
+
+  .dangerousBtn {
+    @apply inline-flex justify-center rounded-md border border-transparent shadow-sm bg-red-600 font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 w-auto text-sm;
+  }
+
+  .paginationBtn {
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:z-20 focus:ring-inputHighlight relative inline-flex items-center border border-border bg-white text-sm font-medium text-text hover:bg-gray-50;
+    &.paginationPrevBtn {
+      @apply px-2.5 py-2.5 rounded-l-md;
+    }
+
+    &.paginationNextBtn {
+      @apply px-2.5 py-2.5 rounded-r-md;
+    }
+
+    &.paginationNumberBtn {
+      @apply px-4 py-2;
+      &.active {
+        @apply bg-indigo-50 border-inputHighlight z-10;
+      }
+    }
+
+    &.disable {
+      @apply cursor-not-allowed hover:bg-white opacity-60;
+    }
+  }
+
+  .primaryBox {
+    @apply mx-auto p-6 border border-border border-t-4 border-t-boxBorderTop text-center space-y-8 bg-white rounded-md;
+  }
+
+  .input {
+    @apply border border-inputBorder rounded-md outline-none focus:ring-2 focus:ring-inputHighlight;
+  }
+}
+
+svg-icon > svg {
+  fill: currentColor;
+
+  & > [stroke] {
+    stroke: currentColor;
+  }
+}

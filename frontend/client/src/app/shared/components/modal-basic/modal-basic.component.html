@@ -1,0 +1,37 @@
+<div *ngIf="isOpenModal" class="fixed z-50 inset-0 overflow-y-auto">
+  <div class="flex items-center justify-center min-h-screen text-center p-0">
+    <div class="fixed z-40 inset-0 bg-gray-500 opacity-20"></div>
+    <div (click)="onClose()"
+         class="relative z-50 inline-block bg-white rounded-lg text-left overflow-visible shadow-xl my-8 flex-grow align-middle w-full max-w-lg">
+      <div class="absolute top-0 right-0 pt-4 pr-4">
+        <button (click)="onClose()"
+                class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center justify-center"
+                type="button">
+          <svg-icon fontSize="24px" key="x"></svg-icon>
+        </button>
+      </div>
+
+      <div class="p-6">
+        <div class="flex items-start">
+          <div
+            class="flex-shrink-0 flex items-center justify-center rounded-full bg-closeBg text-red-600 mx-0 h-10 w-10">
+            <svg-icon fontSize="24px" key="warning-no-fill"></svg-icon>
+          </div>
+
+          <div class="mt-0 ml-4 text-left">
+            <h3 class="text-lg leading-6 font-medium text-title">{{ title }}</h3>
+
+            <div class="mt-2">
+              <p class="text-sm text-text">{{ message }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 flex flex-row-reverse gap-x-3">
+          <button (click)="doAction.emit(true)" class="dangerousBtn px-4 py-2" type="button">{{ action }}</button>
+          <button (click)="onClose()" class="secondaryBtn px-4 py-2" type="button">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

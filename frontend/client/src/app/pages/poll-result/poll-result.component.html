@@ -1,0 +1,270 @@
+<div *ngIf="voteResult" class="max-w-4xl mx-auto">
+  <div class="primaryBox">
+    <div class="flex justify-between">
+      <div class="flex grow flex-col gap-y-1">
+        <h1 class="text-start break-words">{{ voteResult.pollTitle }}</h1>
+
+        <div class="flex items-center gap-x-1 text-base">
+          <span class="">By {{voteResult.createdBy}}</span>
+          <svg-icon fontSize="6px" key="dot"></svg-icon>
+          <span class="">{{voteResult.createdAt | dateAgo}}</span>
+        </div>
+      </div>
+
+      <div [ngClass]="{'hidden': !isOwner}">
+        <app-menu-action (resetPollChange)="handelResetPoll($event)" (toggleMenu)="isOpenMenu = $event" *ngIf="poll"
+                         [isOpenMenuAction]="isOpenMenu"
+                         [poll]="poll"></app-menu-action>
+
+        <div (click)="isOpenMenu = false" *ngIf="isOpenMenu" class="absolute inset-0 bg-transparent"></div>
+      </div>
+    </div>
+
+    <div *ngIf="isShowResult else notShowResult">
+      <!--      Result multiple choice-->
+      <div *ngIf="voteResult.votingType == 'multiple_choice'" class="flex gap-x-8">
+        <div class="grow flex flex-col gap-y-3">
+          <div *ngFor="let c of pollChartOptions.labels; let indexChoice = index" class="">
+            <div class="flex items-center justify-between">
+              <p class="text-base">{{c}}</p>
+              <p class="text-base">
+                {{ pollChartOptions.series[indexChoice] * 100 / voteResult.totalVotes | number: '0.0-2' }}%
+                ({{ pollChartOptions.series[indexChoice] }} votes)</p>
+            </div>
+
+            <div class="mt-1 relative">
+              <div class="h-[18px] border border-border bg-white rounded-lg"></div>
+              <div *ngIf="pollChartOptions.series[indexChoice] * 100 / voteResult.totalVotes > 0"
+                   [ngStyle]="{'backgroundColor': getColor(indexChoice), 'borderColor': getColor(indexChoice), 'width': pollChartOptions.series[indexChoice] * 100 / voteResult.totalVotes + '%'}"
+                   class="h-[18px] border rounded-lg absolute top-0 left-0"></div>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-4 border-t border-border text-base text-start">
+            <span class="">Total votes: {{voteResult.totalVotes }}</span>
+            <!--          <span class=""> (from 11 participants)</span>-->
+          </div>
+        </div>
+
+        <div class="shrink-0 w-72 h-72">
+          <apx-chart
+            [chart]="pollChartOptions.chart"
+            [colors]="pollChartOptions.colors"
+            [dataLabels]="pollChartOptions.dataLabels"
+            [labels]="pollChartOptions.labels"
+            [legend]="pollChartOptions.legend"
+            [series]="pollChartOptions.series"
+            [tooltip]="pollChartOptions.tooltip"
+          ></apx-chart>
+        </div>
+      </div>
+
+      <!--      Result image choice -->
+      <div *ngIf="voteResult.votingType == 'image'" class="">
+        <p class="text-base text-text mb-4 text-left">The results after {{  voteResult.totalVotes }} votes:</p>
+
+        <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-base">
+          <div *ngFor="let choice of voteResult.choices; let indexChoice = index" class="relative">
+
+            <div class="absolute inset-0 flex items-center justify-center opacity-80 text-center">
+              <div class="rounded-md bg-black px-2 py-1 text-white">
+                <div [style.background-color]="pollChartColors[indexChoice % 6]"
+                     [style.height.%]="choice.voteCount / voteResult.totalVotes * 100"
+                     class="absolute rounded-md z-20 opacity-30 bottom-0 left-0 right-0 bg-black"></div>
+
+                <div class="text-2xl font-medium">
+                  <span class=""> {{ (choice.voteCount / voteResult.totalVotes) | percent:'2.0-2' }}</span>
+                </div>
+
+                <div class="">
+                  <span class="">{{ '(' + choice.voteCount + ' votes)'}}</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="flex flex-col justify-between h-full rounded-md border border-border text-text bg-white bg-opacity-5">
+              <div class="flex flex-grow h-48 px-3 py-2 mx-auto">
+                <img alt="image choice" class="object-contain" src="{{ choice.choice['imageUrl']}}"/>
+              </div>
+
+              <div class="flex items-center h-10 mt-2 px-3 py-2 justify-center border-t border-border truncate">
+                <span class="truncate">{{ choice.choice['label'] }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 pt-4 border-t border-border text-base text-start">
+          <span class="">Total votes: {{voteResult.totalVotes }}</span>
+          <!--          <span class=""> (from 11 participants)</span>-->
+        </div>
+      </div>
+
+      <!--      Result meeting choice -->
+      <div *ngIf="voteResult.votingType == 'meeting'" class="">
+        <p class="text-sm text-center text-text">
+          This is the results page. To add or edit participants, please use the
+          <a class="text-link" routerLink="../">voting page.</a>
+        </p>
+      </div>
+    </div>
+
+    <ng-template #notShowResult>
+      <div class="mt-8">
+        <div class="rounded-md bg-yellow-50 dark-bg-opacity-yellow p-4">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <svg-icon class="text-yellow-400" fontSize="20px" key="warning"></svg-icon>
+            </div>
+
+            <div class="ml-3 text-left">
+              <h3 class="text-sm font-semibold text-yellow-800 mb-1">Missing permissions</h3>
+              <p class="text-sm text-yellow-700">You do not have permission to see the results of this poll.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+    <!--    <div class="mt-8 border-y border-border pt-3 flex items-center justify-between">-->
+    <!--      <div class="">-->
+    <!--        <button class="flex items-center gap-x-2 text-title secondaryBtn py-2 px-4" type="button">-->
+    <!--          <svg-icon fontSize="16px" key="toggle"></svg-icon>-->
+    <!--          <span class="">Toggle combined "Other" options</span>-->
+    <!--        </button>-->
+    <!--      </div>-->
+
+    <!--      <div class="flex items-center gap-x-2 border border-border py-1 px-2 rounded-md bg-white">-->
+    <!--        <svg-icon fontSize="14px" key="eye"></svg-icon>-->
+    <!--        <span class="">Only visible to you</span>-->
+    <!--      </div>-->
+    <!--    </div>-->
+
+    <p *ngIf="isClosedVote" class="text-base text-start">Voting closed {{voteResult.deadline | dateAgo}}.</p>
+
+    <div class="flex items-center gap-x-4">
+      <button (click)="onRefreshResult()" [disabled]="!isShowResult" [ngClass]="{'cursor-not-allowed': !isShowResult}"
+              class="primaryBtn py-2 px-8">
+        <button *ngIf="!isRefreshResult" [ngClass]="{'cursor-not-allowed': !isShowResult}"
+                class="flex items-center gap-x-2"
+                type="button">
+          <svg-icon fontSize="20px" key="refresh"></svg-icon>
+          <span class="">Refresh results</span>
+        </button>
+
+        <div *ngIf="isRefreshResult" class="flex items-center gap-x-2">
+          <div class="relative w-5 h-5 bg-transparent rounded-full border-4 border-[#ffffff80] animate-spin">
+            <div
+              class="absolute z-10 w-5 h-5 -top-1 -left-1 right-0 bottom-0 bg-transparent rounded-full border-4 border-white loader-spin-remove"></div>
+          </div>
+          <span class="">Loading ...</span>
+        </div>
+      </button>
+
+      <a class="flex items-center gap-x-2 secondaryBtn py-2 px-8" routerLink="../" type="button">
+        <svg-icon fontSize="20px" key="arrow-left"></svg-icon>
+        <span class="">Back to poll</span>
+      </a>
+    </div>
+  </div>
+
+  <!--  Who votes-->
+  <div *ngIf="voteResult"
+       class="bg-white border divide-y divide-border border-boxBorder rounded-md overflow-hidden mt-8">
+    <div class="px-6 py-5 flex items-center gap-x-2">
+      <svg-icon fontSize="25px" key="users-list"></svg-icon>
+      <h2 class="">Who voted what?</h2>
+    </div>
+
+    <div class="px-6 py-5">
+      <div [ngClass]="{'hidden': voteResult.choices.length <=4 }" class="my-4 flex justify-end items-center gap-x-2">
+        <button (click)="scrollTable(true)" class="py-1.5 px-2.5 secondaryBtn flex items-center justify-center"
+                type="button">
+          <svg-icon fontSize="16px" key="caret-left"></svg-icon>
+        </button>
+        <button (click)="scrollTable(false)" class="py-1.5 px-2.5 secondaryBtn flex items-center justify-center"
+                type="button">
+          <svg-icon fontSize="16px" key="caret-right"></svg-icon>
+        </button>
+      </div>
+
+      <!--            Table person votes -->
+      <div [ngClass]="{'flex flex-col items-center': voteResult.choices.length <=4 }"
+           class="relative overscroll-contain">
+        <!--        Table header -->
+        <div #tableHeader [ngClass]="{'scroll-smooth': isScrollSmooth}" class="sticky top-0 z-30 overflow-hidden">
+          <div class="flex items-stretch font-bold">
+            <div class="sticky left-0 flex items-end bg-white border-b border-border text-title">
+              <span class="text-left custom-title w-60 flex-shrink-0">Name</span>
+            </div>
+
+            <div class="flex items-center gap-x-2">
+              <div *ngFor="let choice of voteResult.choices"
+                   class="w-32 flex items-end justify-center text-center h-full border border-border rounded px-2 py-1 overflow-hidden font-medium min-h-[60px] max-h-[200px]">
+                <span *ngIf="voteResult.votingType == 'multiple_choice'" class="">{{ choice.choice['value'] }}</span>
+                <span *ngIf="voteResult.votingType == 'image'" class="">{{ choice.choice['label'] }}</span>
+
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-stretch">
+            <div
+              class="z-30 w-60 shrink-0 bg-white border-b border-border sticky left-0">
+              <div class="flex items-center justify-between pr-2 py-2 h-12">
+                <span class="text-base">{{voteResult.participantVotes.length}} participants</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-x-2 border-b border-border">
+              <div *ngFor="let choice of voteResult.choices"
+                   class="flex items-center justify-center gap-x-2 w-32 h-full">
+                <svg-icon class="text-green-500" fontSize="18px" key="check"></svg-icon>
+                <span class="text-base">{{choice.voteCount}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--        Table content -->
+        <div #tableContent (scroll)="onScrollTable($event)" [ngClass]="{'scroll-smooth': isScrollSmooth}"
+             class="overflow-auto">
+          <div *ngFor="let participant of voteResult.participantVotes" class="flex items-stretch">
+            <div
+              class="z-30 w-60 shrink-0 bg-white border-b border-border sticky left-0">
+              <div class="flex items-center gap-x-2 pr-2 h-10">
+                <svg-icon fontSize="24px" key="avatar-circle"></svg-icon>
+                <span class="text-base">{{participant.participant}}</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-x-2 border-b border-border">
+              <div *ngFor="let choice of voteResult.choices" class="w-32 h-full flex items-center">
+                <div class="py-1 h-full w-full flex items-center justify-center">
+                  <div *ngIf="participant.choiceIds.includes(choice.choice['id']); else selectNone"
+                       class="bg-green-50 h-full w-full flex items-center justify-center">
+                    <svg-icon class="text-green-500" fontSize="18px" key="check"></svg-icon>
+                  </div>
+
+                  <ng-template #selectNone>
+                    <div class="h-full w-full flex items-center justify-center">
+                      <span class="text-base font-bold">-</span>
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!--  Comments -->
+  <div class="mt-8">
+    <app-comment *ngIf="poll" [pollDetail]="poll"></app-comment>
+  </div>
+</div>

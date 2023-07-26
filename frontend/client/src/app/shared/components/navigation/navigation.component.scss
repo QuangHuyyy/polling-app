@@ -1,0 +1,6 @@
+.navigation-active {
+  @apply text-title bg-boxBorder;
+  & > svg-icon {
+    @apply text-textGrayDark
+  }
+}

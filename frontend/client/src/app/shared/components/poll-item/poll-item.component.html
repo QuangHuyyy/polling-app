@@ -1,0 +1,49 @@
+<div *ngIf="poll"
+     class="relative py-4 pl-6 pr-4 bg-white rounded-md border border-inputBorder hover:border-gray-400 flex items-center w-full h-full"
+     xmlns="http://www.w3.org/1999/html">
+  <div class="flex-auto mr-4">
+    <div class="flex gap-x-4 items-center">
+      <div
+        [ngClass]="{'bg-blue-500': (poll.votingTypeValue == 'image'), 'bg-yellow-500': (poll.votingTypeValue == 'meeting'), 'bg-green-500': (poll.votingTypeValue == 'multiple_choice')}"
+        class="rounded-md w-11 h-11 flex items-center justify-center bg-blue-500">
+        <svg-icon *ngIf="(poll.votingTypeValue == 'image')" color="white" fontSize="20px" key="image-fill"></svg-icon>
+        <svg-icon *ngIf="(poll.votingTypeValue == 'meeting')" color="white" fontSize="20px"
+                  key="schedule-fill"></svg-icon>
+        <svg-icon *ngIf="(poll.votingTypeValue == 'multiple_choice')" color="white" fontSize="20px"
+                  key="chart-pie"></svg-icon>
+      </div>
+      <div class="flex flex-col">
+        <a class="absolute inset-0 z-10" routerLink="{{'/polls/' + poll.uuid }}"></a>
+        <span class="text-lg truncate font-medium text-title">{{ poll.title }}</span>
+        <span class="text-sm text-textGrayDark">{{ poll.createdAt | date }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="shrink-0 w-32 text-center">{{ poll.participants }}</div>
+  <div
+    class="text-sm shrink-0 w-32 text-center">
+    <span *ngIf="poll.setting.deadlineTime == null">-</span>
+    <span *ngIf="poll.setting.deadlineTime != null" class="">
+      <span>{{ poll.setting.deadlineTime | date: 'MMM dd, yyyy' }}</span>
+      <br>
+      <span>{{ poll.setting.deadlineTime | date: 'h:mm a' }}</span>
+    </span>
+  </div>
+  <div class="shrink-0 w-32 text-center">
+            <span
+              [ngClass]="{'bg-closeBg text-closeText': (poll.status == 'CLOSE'), 'bg-liveBg text-liveText': (poll.status == 'LIVE'), 'bg-draftBg text-draftText': (poll.status == 'DRAFT')}"
+              class="inline-flex items-center gap-x-1.5 rounded-full font-medium px-3 py-0.5 text-sm">
+              <svg-icon
+                [ngClass]="{'text-closeIcon': (poll.status == 'CLOSE'), 'text-liveIcon': (poll.status == 'LIVE'), 'text-draftIcon': (poll.status == 'DRAFT')}"
+                fontSize="8px" key="dot"></svg-icon>
+              <span class="capitalize">{{ poll.status.toString().toLocaleLowerCase() }}</span>
+            </span>
+  </div>
+  <div class="shrink-0 w-16 pr-2">
+    <app-menu-action (resetPollChange)="handelResetPoll($event)" (toggleMenu)="isOpenMenuAction = $event"
+                     [isOpenMenuAction]="isOpenMenuAction"
+                     [poll]="poll"></app-menu-action>
+  </div>
+</div>
+
+<div (click)="isOpenMenuAction = false" *ngIf="isOpenMenuAction" class="absolute inset-0 bg-transparent z-20"></div>

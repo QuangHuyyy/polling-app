@@ -1,0 +1,19 @@
+<div
+  class="primaryBox">
+  <h2 class="text-3xl font-medium">Page not found</h2>
+
+  <div class="">
+    <img alt="not found 404" class="mx-auto block max-w-[70%] w-[350px]" src="./assets/images/error-404.png"/>
+  </div>
+
+  <p *ngIf="messageError == undefined else hasError" class="text-base">
+    Are you sure you typed this link in correctly?
+    <br>
+    If you followed a link to this address, please let us know!
+  </p>
+
+  <ng-template #hasError>
+    <p class="text-red-500">{{ messageError }}</p>
+  </ng-template>
+  <a class="primaryBtn py-2 px-4" routerLink="/">Go to the start page</a>
+</div>

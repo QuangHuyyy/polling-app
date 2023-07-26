@@ -1,0 +1,199 @@
+<div class="shadow rounded-lg overflow-hidden">
+  <div class="bg-white p-6">
+    <h1 class="text-title text-3xl font-semibold">Settings</h1>
+
+    <div class="pt-6">
+      <app-tabs>
+        <!--        Profile tab-->
+        <app-tab [active]="true" [title]="'General'">
+          <header class="space-y-1">
+            <h3 class="text-lg leading-6 font-medium text-title">Profile</h3>
+            <p class="max-w-2xl text-sm text-text">Your name and picture will be public, but your email address will
+              always be private.</p>
+          </header>
+
+          <div class="tab-content">
+            <div *ngIf="currentUser && userInfo" class="mt-6 border-t border-border">
+              <div class="divide-y divide-border">
+                <div class="py-5 grid grid-cols-3 gap-4 items-center">
+                  <p class="text-sm font-medium text-text">Name</p>
+
+                  <div class="text-title text-sm">
+                    <span *ngIf="!isUpdateName" class="">{{ currentUser.name }}</span>
+                    <input
+                      *ngIf="isUpdateName"
+                      [(ngModel)]="userInfo.name" class="mt-1 block py-2 w-full px-3 input text-textGrayDark"
+                      type="text"/>
+                    <span
+                      *ngIf="isUpdateName && userInfo.name.trim() == ''"
+                      class="block text-sm text-validateText mt-2">Please enter your name!</span>
+                  </div>
+
+                  <div class="flex items-center justify-end gap-x-4 divide-x-2 divide-border font-medium">
+                    <button (click)="onCancel('name')" *ngIf="isUpdateName" class=""
+                            type="button">Cancel
+                    </button>
+                    <button (click)="onSave('name')" *ngIf="isUpdateName"
+                            [disabled]="userInfo.name.trim() == ''" class="text-inputHighlight pl-4"
+                            type="button">Save
+                    </button>
+                    <button (click)="isUpdateName = true" *ngIf="!isUpdateName"
+                            class="text-inputHighlight pl-4"
+                            type="button">Update
+                    </button>
+                  </div>
+                </div>
+
+                <div class="py-5 grid grid-cols-3 gap-4 items-center">
+                  <p class="text-sm font-medium text-text">Picture</p>
+
+                  <div class="">
+                    <div *ngIf="userInfo.avatar != null" class="w-8 h-8 rounded-full overflow-hidden">
+                      <img alt="avatar" class="w-full h-full" src="{{ userInfo.avatar }}"/>
+                    </div>
+                    <div *ngIf="userInfo.avatar == null"
+                         class="w-8 h-8 flex items-center justify-center rounded-full bg-imageIconPollBg">
+                      <span class="text-white font-medium uppercase text-xl">{{ userInfo.name.charAt(0)}}</span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-end gap-x-4 divide-x-2 divide-border font-medium">
+                    <button (click)="onCancel('avatar')" *ngIf="isUpdateAvatar" class=""
+                            type="button">Cancel
+                    </button>
+                    <button (click)="onSave('avatar')" *ngIf="isUpdateAvatar"
+                            [disabled]="currentUser.avatar == userInfo.avatar"
+                            class="text-inputHighlight pl-4"
+                            type="button">Save
+                    </button>
+                    <button (click)="isUpdateAvatar = true; isOpenModalAvatar = true" *ngIf="!isUpdateAvatar"
+                            class="text-inputHighlight pl-4"
+                            type="button">Update
+                    </button>
+
+                    <button (click)="onRemoveAvatar()" *ngIf="!isUpdateAvatar && userInfo.avatar != null"
+                            [disabled]="userInfo.avatar == null"
+                            class="text-inputHighlight pl-4"
+                            type="button">Remove
+                    </button>
+                  </div>
+
+                  <app-media-modal (closeModal)="closeMediaModal($event)" *ngIf="isOpenModalAvatar"
+                                   [formControl]="avatarControl"></app-media-modal>
+                </div>
+
+                <!--                <div class="py-5 grid grid-cols-3 gap-4 items-center">-->
+                <!--                  <p class="text-sm font-medium text-text">Email</p>-->
+
+                <!--                  <div class="text-title text-sm">-->
+                <!--                    <span *ngIf="!isUpdateEmail" class="">{{ currentUser.email }}</span>-->
+                <!--                    <input-->
+                <!--                      *ngIf="isUpdateEmail"-->
+                <!--                      [(ngModel)]="userInfo.email" class="mt-1 block py-2 w-full px-3 input text-textGrayDark"-->
+                <!--                      type="text"/>-->
+                <!--                    <span-->
+                <!--                      *ngIf="isUpdateEmail && userInfo.email.trim() == ''"-->
+                <!--                      class="block text-sm text-validateText mt-2">Please enter your email!</span>-->
+                <!--                    <span-->
+                <!--                      *ngIf="isUpdateEmail && !userInfo.email.match(emailRegex)"-->
+                <!--                      class="block text-sm text-validateText mt-2">Email address is invalid!</span>-->
+                <!--                  </div>-->
+
+                <!--                  <div class="flex items-center justify-end gap-x-4 divide-x-2 divide-border font-medium">-->
+                <!--                    <button (click)="onCancel('email')" *ngIf="isUpdateEmail" class=""-->
+                <!--                            type="button">Cancel-->
+                <!--                    </button>-->
+                <!--                    <button (click)="onSave('email')" *ngIf="isUpdateEmail"-->
+                <!--                            [disabled]="userInfo.email.trim() == '' && !userInfo.email.match(emailRegex)"-->
+                <!--                            class="text-inputHighlight pl-4"-->
+                <!--                            type="button">Save-->
+                <!--                    </button>-->
+                <!--                    <button (click)="isUpdateEmail = true" *ngIf="!isUpdateEmail"-->
+                <!--                            class="text-inputHighlight pl-4"-->
+                <!--                            type="button">Update-->
+                <!--                    </button>-->
+                <!--                  </div>-->
+                <!--                </div>-->
+              </div>
+            </div>
+          </div>
+        </app-tab>
+
+        <!--        Password tab -->
+        <app-tab [title]="'Password'">
+          <header class="space-y-1">
+            <h3 class="text-lg leading-6 font-medium text-title">Change password</h3>
+            <p class="max-w-2xl text-sm text-text">By entering your current password, you can set a new password for
+              your account.</p>
+          </header>
+
+          <div class="tab-content">
+            <div class="mt-6 border-t border-border">
+              <form #form="ngForm" (ngSubmit)="onSubmitPasswordForm()" [formGroup]="fUpdatePasswordUser" novalidate>
+                <div class="divide-y divide-border">
+                  <div class="py-5 grid grid-cols-3 gap-4 items-center">
+                    <p class="text-sm font-medium text-text">Current password</p>
+
+                    <input class="mt-1 block py-2 w-full px-3 input text-textGrayDark" formControlName="currentPassword"
+                           type="password"/>
+
+                    <span
+                      *ngIf="(fUpdatePasswordUser.get('currentPassword')?.errors?.['required'] && fUpdatePasswordUser.get('currentPassword')?.touched) || (fUpdatePasswordUser.get('currentPassword')?.errors?.['required'] && form.submitted)"
+                      class="block text-sm text-validateText mt-2">Please enter your password!</span>
+                    <span
+                      *ngIf="(fUpdatePasswordUser.get('currentPassword')?.errors?.['minlength'] && fUpdatePasswordUser.get('currentPassword')?.touched) || (fUpdatePasswordUser.get('currentPassword')?.errors?.['minlength'] && form.submitted)"
+                      class="block text-sm text-validateText mt-2">Password must be at least 8 characters long!</span>
+
+                  </div>
+
+                  <div class="divide-y divide-border" formGroupName="pwg">
+                    <div class="py-5 grid grid-cols-3 gap-4 items-center">
+                      <p class="text-sm font-medium text-text">New password</p>
+
+                      <input class="mt-1 block py-2 w-full px-3 input text-textGrayDark" formControlName="password"
+                             type="password"/>
+
+                      <span
+                        *ngIf="(pwg.get('password')?.errors?.['required'] && pwg.get('password')?.touched) || (pwg.get('password')?.errors?.['required'] && form.submitted)"
+                        class="block text-sm text-validateText mt-2">Please enter your password!</span>
+                      <span
+                        *ngIf="(pwg.get('password')?.errors?.['minlength'] && pwg.get('password')?.touched) || (pwg.get('password')?.errors?.['minlength'] && form.submitted)"
+                        class="block text-sm text-validateText mt-2">Password must be at least 8 characters long!</span>
+                    </div>
+
+                    <div class="py-5 grid grid-cols-3 gap-4 items-center">
+                      <p class="text-sm font-medium text-text">Confirm new password</p>
+
+                      <input class="mt-1 block py-2 w-full px-3 input text-textGrayDark"
+                             formControlName="confirmPassword"
+                             type="password"/>
+
+                      <span
+                        *ngIf="(pwg.get('confirmPassword')?.errors?.['required'] && pwg.get('confirmPassword')?.touched) || (pwg.get('confirmPassword')?.errors?.['required'] && form.submitted); else notMatch"
+                        class="block text-sm text-validateText mt-2">Please enter confirm password!</span>
+                      <ng-template #notMatch>
+                        <span
+                          *ngIf="(pwg.hasError('passwordnotmatch') && pwg.get('confirmPassword')?.touched) || (pwg.hasError('passwordnotmatch') && form.submitted)"
+                          class="block text-sm text-validateText mt-2">Confirm password does not match!</span>
+                      </ng-template>
+                    </div>
+                  </div>
+
+                  <div class="py-5 grid grid-cols-3 gap-4 items-center">
+                    <p></p>
+
+                    <div class="">
+                      <button class="primaryBtn py-2 px-4" type="submit">Set new password</button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+
+              <pre>{{ fUpdatePasswordUser.value | json }}</pre>
+            </div>
+          </div>
+        </app-tab>
+      </app-tabs>
+    </div>
+  </div>
+</div>

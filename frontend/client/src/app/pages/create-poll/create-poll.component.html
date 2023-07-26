@@ -1,0 +1,481 @@
+<div class="max-w-3xl mx-auto">
+  <div *ngIf="isCreateMode; else editMode" class="text-center">
+    <h1 class="text-3xl">Create a Poll</h1>
+    <p class="mt-2">Complete the below fields to create your poll.</p>
+  </div>
+  <ng-template #editMode>
+    <div class="text-center">
+      <h1 class="text-3xl">Edit poll</h1>
+    </div>
+  </ng-template>
+
+  <div class="mt-8">
+    <div class="border border-boxBorder border-t-4 border-t-boxBorderTop rounded-md p-6 bg-white">
+      <form #form="ngForm" (ngSubmit)="onSubmitForm()" [formGroup]="fCreatePoll" class="" novalidate>
+        <div class="space-y-6">
+          <div class="">
+            <label class="text-sm mb-1 font-medium text-[#374151] block" for="poll-title">Title</label>
+            <div class="relative">
+              <input
+                [ngClass]="{'focus:ring-validateText border-validateText': fCreatePoll.get('title')?.errors?.['required'] && fCreatePoll.get('title')?.touched}"
+                autofocus
+                class="w-full rounded-md text-base text-textGrayDark placeholder-textGrayLight py-3 px-4 border border-inputBorder focus:outline-none focus:ring-2 focus:ring-inputHighlight"
+                formControlName="title"
+                id="poll-title"
+                placeholder="Type your question here"/>
+              <button (click)="isOpenModalThumbnail = true"
+                      class="absolute top-1/2 right-4 -translate-y-1/2 flex items-center justify-center"
+                      type="button">
+                <svg-icon class="text-textGrayLight" fontSize="20px"
+                          key="image"></svg-icon>
+              </button>
+
+              <app-media-modal (closeModal)="closeMediaModal($event)" *ngIf="isOpenModalThumbnail"
+                               formControlName="thumbnail"></app-media-modal>
+            </div>
+
+            <p
+              *ngIf="fCreatePoll.get('title')?.errors?.['required'] && fCreatePoll.get('title')?.touched"
+              class="mt-2 text-sm text-validateText">Please enter a title for your
+              poll.</p>
+            <div *ngIf="!isOpenDesc" class="mt-3">
+              <button (click)="toggleDesc(true)"
+                      class="flex items-center gap-x-1 text-textGrayLight hover:text-textGrayDark" type="button">
+                <svg-icon class="" fontSize="20px" key="plus"></svg-icon>
+                <span class="">Add description</span>
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="isOpenDesc" class="">
+            <label class="text-sm mb-1 font-medium text-[#374151] block" for="poll-description">Description <span
+              class="text-text">(optional)</span></label>
+
+            <div class="">
+              <div class="">
+                <textarea
+                  class="w-full rounded-md text-base text-textGrayDark py-3 px-4 border border-inputBorder focus:outline-none focus:ring-2 focus:ring-inputHighlight"
+                  formControlName="description"
+                  id="poll-description" rows="4"></textarea>
+                <div class="text-end mt-1">
+                  <button (click)="toggleDesc(false)" class="hover:text-textGrayDark transition-colors" type="button">
+                    Hide description
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!--          Display poll image -->
+          <div *ngIf="thumbnailUrl!=''" class="relative mt-6 px-20 flex items-center justify-center">
+            <button (click)="removeThumbnail()" class="absolute top-0 right-0 flex items-center justify-center"
+                    type="button">
+              <svg-icon class="" fontSize="20px" key="x"></svg-icon>
+            </button>
+
+            <img [src]="thumbnailUrl" alt="poll thumbnail"
+                 class="max-w-full"/>
+          </div>
+
+          <!--          Voting type -->
+          <div *ngIf="isCreateMode" class="">
+            <label class="text-sm mb-1 font-medium text-[#374151] block">Voting type</label>
+
+            <div class="">
+              <app-custom-select (currentValueChange)="onChangeVotingType($event)"
+                                 [options]="votingTypes"
+                                 [select]="votingTypeSelected"
+                                 formControlName="votingType"></app-custom-select>
+            </div>
+          </div>
+
+          <!--          Poll answer options -->
+          <div class="">
+            <!--          Answer for Multiple choice -->
+            <div *ngIf="votingType.value =='multiple_choice'" class="">
+              <div class="flex items-center justify-between">
+                <label [for]="'option-0'" class="text-sm mb-1 font-medium text-[#374151] block">Answer Options</label>
+                <button (click)="togglePasteAnswers(true)" class="text-link" type="button">Paste answers</button>
+              </div>
+
+              <!--            Paste answers input -->
+              <div [style.display]="isOpenPasteAnswer ? 'block' : 'none'" class="">
+              <textarea
+                #pasteAnswerInput
+                class="block w-full rounded-md text-base text-textGrayDark py-3 px-4 border border-inputBorder focus:outline-none focus:ring-2 focus:ring-inputHighlight"
+                placeholder="Enter one answer option per line"
+                rows="3"></textarea>
+
+                <div class="flex items-center gap-x-2 mt-2">
+                  <button
+                    (click)="onClickPreviewPasteAnswerMultiple()"
+                    class="py-2 px-4 border border-transparent bg-primaryButtonBg text-white font-medium rounded-md hover:bg-primaryButtonBgHover transition-colors"
+                    type="button">
+                    Preview
+                  </button>
+
+                  <button
+                    (click)="togglePasteAnswers(false)"
+                    class="py-2 px-4 border border-secondButtonBorder bg-secondButtonBg text-title font-medium rounded-md hover:bg-secondButtonBgHover transition-colors"
+                    type="button">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+
+              <!--            Answer option list-->
+              <div [style.display]="!isOpenPasteAnswer ? 'block' : 'none'" class="" formArrayName="answers">
+                <ul class="space-y-3">
+                  <li *ngFor="let a of answers.controls; let i = index" class="">
+                    <ng-container [formGroupName]="i">
+                      <div class="relative">
+                        <input
+                          [placeholder]="a.value['isOther'] ? 'Other...' : ('Option ' + (i + 1))"
+                          [readonly]="a.value['isOther']"
+                          [style.box-shadow]="a.value['isOther'] ? 'none' : ''"
+                          [style.color]="a.value['isOther'] ? 'textGrayLight' : 'text-textGrayDark'"
+                          [style.cursor]="a.value['isOther'] ? 'not-allowed' : 'revert'"
+                          class="w-full rounded-md text-base placeholder-textGrayLight py-2 px-3 border border-inputBorder focus:outline-none focus:ring-2 focus:ring-inputHighlight"
+                          formControlName="value"
+                          id="option-{{ i }}"
+                          name="answer-{{ i }}"
+                          type="text"/>
+                        <button (click)="removeAnswerOption(i, votingType.value)" *ngIf="answers.length > 1"
+                                class="absolute top-1/2 -translate-y-1/2 right-3 flex items-center justify-center"
+                                type="button">
+                          <svg-icon class="" fontSize="20px" key="x"></svg-icon>
+                        </button>
+                      </div>
+
+                      <p
+                        *ngIf="(a?.errors?.['requiredValue'] && a.touched) || (a?.errors?.['requiredValue'] && form.submitted)"
+                        class="mt-2 text-sm text-validateText">Please
+                        value option!</p>
+                    </ng-container>
+                  </li>
+                </ul>
+
+                <div class="mt-3 flex items-center gap-x-2">
+                  <button
+                    (click)="addAnswer(votingType.value)"
+                    class="flex items-center gap-x-1 border border-secondButtonBorder rounded-md py-2 pr-4 pl-3 bg-secondButtonBg hover:bg-secondButtonBgHover transition-colors"
+                    type="button">
+                    <svg-icon class="" fontSize="18px" key="plus"></svg-icon>
+                    <span class="text-title font-medium">Add option</span>
+                  </button>
+
+                  <span *ngIf="!checkOtherMultiple()" class="">or</span>
+
+                  <button (click)="addOtherMultiple()" *ngIf="!checkOtherMultiple()"
+                          class="text-link hover:text-indigo-500 transition-colors font-medium" type="button">Add
+                    "Other"
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!--            Answer for Image poll -->
+            <div *ngIf="votingType.value == 'image'" class="">
+              <div class="grid grid-cols-3 gap-6 grid-flow-row auto-rows-fr" formArrayName="answers">
+                <div *ngFor="let a of answers.controls; let answerIndex = index"
+                     [formGroupName]="answerIndex" class="p-1 border border-inputBorder rounded-md relative">
+                  <button (click)="removeAnswerOption(answerIndex, votingType.value)" class="absolute top-2 right-2"
+                          type="button">
+                    <svg-icon fontSize="20px" key="x"></svg-icon>
+                  </button>
+                  <button
+                    (click)="inputElement.click()"
+                    *ngIf="imageOptionUrl[answerIndex] == undefined"
+                    class="w-full h-32 flex flex-col items-center justify-center bg-gray-50 rounded-md"
+                    type="button">
+                    <svg-icon fontSize="24px" key="image"></svg-icon>
+                    <span class="mt-1 text-xs text-text text-center">Click to upload</span>
+                  </button>
+
+                  <input #inputElement (change)="onFileSelected(answerIndex, $event)"
+                         accept="image/jpeg, image/png, image/gif, image/svg+xml"
+                         class="hidden"
+                         formControlName="image"
+                         type="file"/>
+
+                  <img *ngIf="imageOptionUrl[answerIndex] != undefined" [src]="imageOptionUrl[answerIndex]"
+                       alt="image option"
+                       class="w-full object-contain h-32"/>
+
+                  <input
+                    class="mt-2 border border-inputBorder rounded-md py-2 px-3 block w-full text-sm focus:outline-none focus:ring-2 focus:ring-inputHighlight"
+                    formControlName="label"
+                    placeholder="Label {{answerIndex + 1}} (optional)" type="text">
+                </div>
+
+                <!--                Add image answer options-->
+                <button
+                  (click)="addAnswer(votingType.value)"
+                  class="p-1 border border-inputBorder rounded-md flex items-center justify-center flex-col gap-y-2 h-[184px]"
+                  type="button">
+                  <svg-icon fontSize="20px" key="plus"></svg-icon>
+                  <span>Add option</span>
+                </button>
+              </div>
+            </div>
+
+            <!--            Answer for Meeting poll -->
+            <div *ngIf="votingType.value == 'meeting'" class="">
+              <div class="grid grid-cols-2 gap-x-6">
+                <app-my-calendar (selectedDatesChange)="onCalendarSelected($event, -1)"
+                                 [selectedDates]="calendarSelected"></app-my-calendar>
+
+                <!--                No date selected -->
+                <div *ngIf="calendarSelected.length == 0; else haveDateSelected"
+                     class="p-4 border border-inputBorder rounded-md">
+                  <div class="text-center flex items-center justify-center flex-col w-full h-full">
+                    <div class="text-lg font-medium text-textGrayDark">Dates &amp; Times</div>
+                    <div class="text-sm text-textGrayLight mt-1">Click on a date in the calendar to get started</div>
+                  </div>
+                </div>
+
+                <!--                Have date selected -->
+                <ng-template #haveDateSelected formArrayName="answers">
+                  <div class="flex flex-col gap-y-4">
+                    <div *ngFor="let aMeeting of answers.controls; let indexMeeting = index"
+                         class="p-4 border border-inputBorder rounded-md">
+                      <div [formGroupName]="indexMeeting" class="">
+                        <!--                        <div *ngFor="let date of calendarSelected; let indexDate = index"-->
+                        <!--                             class="p-4 border border-inputBorder rounded-md">-->
+                        <div class="flex items-center justify-between">
+                          <span class="font-medium text-textGrayDark">{{ aMeeting.get('date')?.value | date }}</span>
+                          <button (click)="removeDateCalendarSelected(indexMeeting)" type="button">
+                            <svg-icon class="" fontSize="20px" key="x"></svg-icon>
+                          </button>
+                        </div>
+
+                        <div class="mt-4 text-base" formArrayName="times">
+                          <div
+                            *ngIf="meetingTimes(indexMeeting).length == 1 && meetingTimes(indexMeeting).at(0).value['from'] == '00:00' && meetingTimes(indexMeeting).at(0).value['to'] == '23:59'; else hasTime"
+                            class="mb-3 flex border border-dashed border-inputBorder rounded-md px-3 py-2">
+                            <p class="flex-grow text-textGrayDark text-center">All-day</p>
+                          </div>
+
+                          <ng-template #hasTime>
+                            <div class="flex flex-col gap-y-3 mt-4">
+                              <div *ngFor="let mTime of meetingTimes(indexMeeting).controls; let indexTime = index"
+                                   class="border border-inputBorder rounded-md px-3 py-2 shadow-sm focus-within:ring-1 focus-within:ring-inputHighlight focus-within:border-inputHighlight w-full">
+                                <div [formGroupName]="indexTime" class="">
+                                  <div class="flex items-center">
+                                    <div class="flex-grow">
+                                      <input [value]="mTime.get('from')?.value "
+                                             class="text-sm border-0 p-0 focus:ring-0 outline-none cursor-pointer"
+                                             formControlName="from" type="time">
+                                    </div>
+
+                                    <span class="pl-1 pr-2">-</span>
+                                    <div class="flex-grow">
+                                      <input [value]="mTime.get('to')?.value"
+                                             class="text-sm border-0 p-0 focus:ring-0 outline-none cursor-pointer"
+                                             formControlName="to" type="time">
+                                    </div>
+                                    <button (click)="removeTimeMeeting(indexMeeting, indexTime)"
+                                            class="flex items-center justify-center"
+                                            type="button">
+                                      <svg-icon class="" fontSize="16px" key="x"></svg-icon>
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </ng-template>
+
+                          <div class="mt-3 flex items-center justify-between">
+                            <button (click)="addMeetingTimes(indexMeeting)"
+                                    class="flex items-center gap-x-2 py-2 px-3 border border-inputBorder rounded-md font-medium hover:bg-secondButtonBgHover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-inputHighlight"
+                                    type="button">
+                              <svg-icon class="" fontSize="16px" key="plus"></svg-icon>
+                              <span class="text-title text-sm">Add times</span>
+                            </button>
+                          </div>
+                        </div>
+                        <!--                        </div>-->
+                      </div>
+                    </div>
+                  </div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+
+          <!--          Settings -->
+          <div class="border-t border-b border-border pt-6 pb-6" formGroupName="settings">
+            <h3 class="text-title font-medium text-lg">Settings</h3>
+
+            <!--            Normal -->
+            <div class="mt-6 grid grid-cols-2 gap-x-6 divide-x divide-border">
+              <div class="col-span-1 space-y-6">
+                <div class="flex flex-col gap-y-2">
+                  <app-switches [label]="'Allow selection of multiple options'"
+                                formControlName="allowMultipleOption"></app-switches>
+
+                  <!--                  <div [ngClass]="{ 'hidden': !settings.get('allowMultipleOption')?.value }"-->
+                  <!--                       class="flex items-center gap-x-3">-->
+                  <!--                    <svg-icon class="shrink-0" fontSize="20px" key="arrow-bend-down-right"></svg-icon>-->
+
+                  <!--                    <div class="flex items-center justify-between gap-x-3 w-full">-->
+                  <!--                      <select #multipleOptionValues-->
+                  <!--                              (change)="onChangeMultipleOptionValue($event)" class="block w-full border border-inputBorder rounded-md appearance-none focus:outline-none focus:ring-2 focus:ring-inputHighlight bg-white py-2 pl-3 pr-10 bg-select-icon bg-[right_12px_center] bg-no-repeat bg-[length:16px_16px] shadow-sm"-->
+                  <!--                              formControlName="allowMultipleOption">-->
+                  <!--                        <option value="unlimited">Unlimited</option>-->
+                  <!--                        <option value="exact">Exact number</option>-->
+                  <!--                        <option value="range">Range</option>-->
+                  <!--                      </select>-->
+
+                  <!--                      <div [ngClass]="{ 'hidden': multipleOptionValues.value == 'unlimited'}"-->
+                  <!--                           class="flex items-center justify-between gap-x-3">-->
+                  <!--                        <input-->
+                  <!--                          [ngClass]="{ 'hidden': multipleOptionValues.value == 'exact'}"-->
+                  <!--                          class="py-2 px-3 border border-inputBorder rounded-md block w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-inputHighlight"-->
+                  <!--                          id="multiple-choice-min"-->
+                  <!--                          placeholder="0" type="number"/>-->
+                  <!--                        <input-->
+                  <!--                          class="py-2 px-3 border border-inputBorder rounded-md block w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-inputHighlight"-->
+                  <!--                          id="multiple-choice-max"-->
+                  <!--                          placeholder="0" type="number"/>-->
+                  <!--                      </div>-->
+                  <!--                    </div>-->
+                  <!--                  </div>-->
+                </div>
+
+                <div class="flex flex-col">
+                  <app-switches [label]="'Require participants names'" formControlName="requireName"></app-switches>
+                </div>
+              </div>
+
+              <div class="col-span-1">
+                <div class="pl-6">
+                  <label class="text-gray-700 font-medium cursor-pointer select-none mb-1 inline-block"
+                         for="voting-restrictions">Voting restrictions</label>
+                  <select
+                    class="block w-full border border-inputBorder rounded-md appearance-none focus:outline-none focus:ring-2 focus:ring-inputHighlight bg-white py-2 pl-3 pr-10 bg-select-icon bg-[right_12px_center] bg-no-repeat bg-[length:16px_16px] shadow-sm"
+                    formControlName="votingRestrictions"
+                    id="voting-restrictions">
+                    <option value="none">Unlimited votes per user</option>
+                    <option value="session">One vote per browser session</option>
+                    <option value="ip">One vote per IP address</option>
+                    <option value="user">One vote per user account</option>
+                    <option value="token">One vote per voting token</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!--            Advanced -->
+            <div class="mt-6">
+              <button (click)="showAdvancedSetting()"
+                      class="flex items-center gap-x-1 text-link hover:text-indigo-500 transition-colors font-medium"
+                      type="button">
+                <svg-icon [ngClass]="{ '-rotate-90': !isShowAdvancedSettings}" class="transition-transform"
+                          fontSize="16px"
+                          key="caret-down"></svg-icon>
+                <span class="">Show advanced settings</span>
+              </button>
+
+              <div [ngClass]="{ 'hidden': !isShowAdvancedSettings }"
+                   class="mt-6 grid grid-cols-2 gap-x-6 divide-x divide-border">
+                <div class="col-span-1 space-y-6">
+                  <div class="flex flex-col gap-y-2">
+                    <app-switches [label]="'Set end date'" formControlName="endDate"></app-switches>
+
+                    <div *ngIf="settings.get('endDate')?.value" class="flex items-center gap-x-3">
+                      <svg-icon class="shrink-0" fontSize="20px" key="arrow-bend-down-right"></svg-icon>
+
+                      <div class="w-full">
+                        <input
+                          class="py-2 px-3 border border-inputBorder rounded-md block w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-inputHighlight"
+                          formControlName="endDate"
+                          type="datetime-local"/>
+                      </div>
+                    </div>
+                    <p
+                      *ngIf="(settings.get('endDate')?.hasError('noFutureTime') && settings.get('endDate')?.touched)"
+                      class="text-validateText text-xs">Please choose a date in the future.</p>
+                  </div>
+
+                  <div class="flex flex-col">
+                    <app-switches [label]="'Allow comments'" formControlName="allowComments"></app-switches>
+                  </div>
+                </div>
+
+                <div class="col-span-1 space-y-6">
+                  <div class="pl-6">
+                    <label class="text-gray-700 font-medium cursor-pointer select-none mb-1 inline-block"
+                           for="results-visibility">Results visibility</label>
+                    <select
+                      class="block w-full border border-inputBorder rounded-md appearance-none focus:outline-none focus:ring-2 focus:ring-inputHighlight bg-white py-2 pl-3 pr-10 bg-select-icon bg-[right_12px_center] bg-no-repeat bg-[length:16px_16px] shadow-sm"
+                      formControlName="resultsVisibility"
+                      id="results-visibility">
+                      <option value="always">Always public</option>
+                      <option value="after_deadline">Public after end date</option>
+                      <option value="after_vote">Public after vote</option>
+                      <option value="hidden">Not public</option>
+                    </select>
+                  </div>
+
+                  <div class="pl-6">
+                    <app-switches [label]="'Edit vote permissions'" formControlName="allowEditVote"></app-switches>
+                    <!--                    <label class="text-gray-700 font-medium cursor-pointer select-none mb-1 inline-block"-->
+                    <!--                           for="edit-vote-permissions">Edit vote permissions</label>-->
+                    <!--                    <select-->
+                    <!--                      class="block w-full border border-inputBorder rounded-md appearance-none focus:outline-none focus:ring-2 focus:ring-inputHighlight bg-white py-2 pl-3 pr-10 bg-select-icon bg-[right_12px_center] bg-no-repeat bg-[length:16px_16px] shadow-sm"-->
+                    <!--                      formControlName="editVotePermissions"-->
+                    <!--                      id="edit-vote-permissions">-->
+                    <!--                      <option value="nobody">Nobody</option>-->
+                    <!--                      <option value="admin">Admin</option>-->
+                    <!--                      <option value="admin_voter">Admin & own votes</option>-->
+                    <!--                      <option value="voter">Own votes only</option>-->
+                    <!--                      <option value="everybody">Everybody</option>-->
+                    <!--                    </select>-->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!--          Errors -->
+          <div
+            *ngIf="(answers.hasError('noAnswer') && answers.touched) || (form.submitted && answers.hasError('noAnswer'))"
+            class="pb-5">
+            <div class="rounded-md bg-red-50 p-4 border border-transparent">
+              <div class="flex gap-x-3 items-center">
+                <svg-icon color="#ef4444" fontSize="20px" key="x-circle-fill"></svg-icon>
+                <span class="text-sm text-red-800">Please enter at least one answer option.</span>
+              </div>
+            </div>
+          </div>
+          <!--          Buttons actions -->
+          <div *ngIf="isCreateMode" class="grid grid-cols-3 gap-x-6">
+            <button
+              class="border border-primaryButtonBorder rounded-md py-2 px-4 bg-primaryButtonBg text-primaryButtonText font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 hover:bg-primaryButtonBgHover"
+              type="submit">Create poll
+            </button>
+            <button
+              (click)="onSaveAsDraft()"
+              [disabled]="fCreatePoll.invalid" [ngClass]="{'cursor-not-allowed hover:bg-white': fCreatePoll.invalid}"
+              class="border border-secondButtonBorder rounded-md py-2 px-4 bg-secondButtonBg text-secondButtonText font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 hover:bg-secondButtonBgHover"
+              type="button">Save as draft
+            </button>
+          </div>
+
+          <div *ngIf="!isCreateMode" class="flex items-center justify-end gap-x-6">
+            <button
+              class="border border-primaryButtonBorder rounded-md py-2 px-4 bg-primaryButtonBg text-primaryButtonText font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 hover:bg-primaryButtonBgHover"
+              type="submit">Save
+            </button>
+            <button
+              (click)="onCancel()"
+              class="border border-secondButtonBorder rounded-md py-2 px-4 bg-secondButtonBg text-secondButtonText font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 hover:bg-secondButtonBgHover"
+              type="button">Cancel
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

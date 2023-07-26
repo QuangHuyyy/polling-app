@@ -1,0 +1,80 @@
+<div class="bg-white border divide-y divide-border border-boxBorder rounded-md overflow-hidden">
+  <div class="px-6 py-5 flex items-center gap-x-2">
+    <svg-icon fontSize="20px" key="chats"></svg-icon>
+    <h2 class="">Comments</h2>
+  </div>
+
+  <div *ngIf="!pollDetail.setting.allowComment" class="px-6 py-5">
+    <p class="text-base">Comments are disabled.</p>
+  </div>
+
+  <div *ngIf="pollDetail.setting.allowComment" class="">
+    <div *ngIf="comments.length == 0" class="px-6 py-5">
+      <div class="rounded-md bg-blue-50 dark-bg-opacity-blue p-4 flex items-center gap-x-3 text-blue-400">
+        <svg-icon fontSize="18px" key="info"></svg-icon>
+        <p class="text-sm text-blue-800">No comments yet. Be the first to write one!</p>
+      </div>
+    </div>
+
+    <!--    Comment content-->
+    <div *ngIf="comments.length != 0" class="">
+      <ul class="px-6 py-5 border-b border-border space-y-8">
+        <li *ngFor="let comment of comments; let index = index" class="flex flex-col">
+          <app-comment-item (reloadComments)="onReloadComments($event)" [comment]="comment"
+                            [ownerUserUuid]="comment.userUuid" [pollUuid]="pollUuid"></app-comment-item>
+        </li>
+      </ul>
+    </div>
+
+    <!--    Pagination -->
+    <div *ngIf="pageComments && pageComments.totalPages > 1" class="px-6 py-3 border-t border-border rounded-b-md">
+      <app-pagination (pageNumberChange)="handlePageChange($event)" *ngIf="pageComments"
+                      [pageable]="pageComments"></app-pagination>
+    </div>
+
+
+    <form #form="ngForm" (ngSubmit)="onSubmitComment()" [formGroup]="fComment" class="text-start" novalidate>
+      <div class="px-6 py-5">
+        <div class="flex gap-x-3">
+          <div *ngIf="currentUser !== null" class="shrink-0">
+            <img *ngIf="currentUser.avatar" alt="avt"
+                 class="w-10 h-10 rounded-full"
+                 src="{{ currentUser.avatar }}"/>
+
+            <div *ngIf="!currentUser.avatar"
+                 class="w-8 h-8 flex items-center justify-center rounded-full bg-imageIconPollBg">
+              <span
+                class="text-white font-medium uppercase text-xl">{{ currentUser.name.charAt(0) }}</span>
+            </div>
+          </div>
+
+          <div *ngIf="currentUser == null"
+               class="shrink-0 w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+            <svg-icon fontSize="24px" key="avatar"></svg-icon>
+          </div>
+
+          <div class="grow flex flex-col gap-y-3">
+            <input [ngClass]="{'hidden': currentUser != null}"
+                   class="block w-full py-2 px-3 rounded-md border border-border focus:ring-2 focus:ring-inputHighlight outline-none"
+                   formControlName="name"
+                   placeholder="Enter your name"
+                   type="text"/>
+            <p *ngIf="form.submitted && fComment.get('name')?.errors?.['required']" class="text-red-500">Please enter
+              your name!</p>
+
+            <textarea
+              class="focus:outline-none focus:ring-2 focus:ring-inputHighlight border block border-boxBorder rounded-md py-2 px-3 w-full"
+              formControlName="message"
+              placeholder="Add a comment" rows="3"></textarea>
+
+            <p *ngIf="form.submitted && fComment.get('message')?.errors?.['required']" class="text-red-500">Please enter
+              comment!</p>
+            <div class="text-end mt-3">
+              <button class="primaryBtn py-2 px-4" type="submit">Add comment</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

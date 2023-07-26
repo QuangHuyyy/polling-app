@@ -1,0 +1,45 @@
+<div [style.visibility]="isOpenModal ? 'visible' : 'hidden'"
+     class="fixed inset-0 z-50 min-h-screen flex items-center justify-center">
+  <!--                background -->
+  <div (click)="closeModal.emit(true)" class="absolute z-20 inset-0 bg-text opacity-80"></div>
+
+  <div class="relative z-50 max-w-lg">
+    <div class="w-[512px] rounded-lg shadow-lg bg-white divide-y divide-border">
+      <div class="relative">
+        <p class="py-4 px-6 text-base text-textGrayDark">Media gallery</p>
+        <button (click)="closeModal.emit(true)"
+                class="absolute top-1/2 -translate-y-1/2 right-4 flex items-center justify-center"
+                type="button">
+          <svg-icon class="my-auto text-textGrayLight hover:text-text transition-colors" fontSize="24px"
+                    key="x"></svg-icon>
+        </button>
+      </div>
+
+      <div class="py-8 px-6">
+        <div
+          class="relative border border-2 border-dashed border-inputBorder hover:border-textGrayLight rounded-lg bg-pageBg p-12 flex items-center justify-center flex-col">
+          <svg-icon class="" fontSize="48px" key="folder-plus"></svg-icon>
+          <div class="text-center mt-2">
+            <p class="font-medium text-title">Click to upload or drop an image right here</p>
+            <p class="text-textGrayDark">JPG, PNG, or GIF. Up to 4MB.</p>
+            <p *ngIf="typeFileError!== ''" class="mt-2 block text-sm font-medium text-red-500">{{ typeFileError }}</p>
+          </div>
+
+          <input (change)="onFileSelected($event)"
+                 accept="image/jpeg, image/png, image/gif, image/svg+xml"
+                 class="absolute inset-0 z-10 opacity-0 cursor-pointer"
+                 type="file"/>
+        </div>
+      </div>
+
+      <div class="py-4 px-6">
+        <button
+          (click)="closeModal.emit(true)"
+          class="py-2 px-4 text-title border border-secondButtonBorder bg-secondButtonBg text-title rounded-md w-full hover:bg-pageBg transition-colors"
+          type="button">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

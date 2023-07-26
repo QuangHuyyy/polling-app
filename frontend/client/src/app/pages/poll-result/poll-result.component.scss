@@ -1,0 +1,11 @@
+.scrollable {
+  max-height: 200px;
+  overflow-y: auto;
+  width: 40%;
+  overflow-x: auto;
+  display: flex;
+}
+
+.loader-spin-remove {
+  clip-path: polygon(50% 50%, 50% 0, 100% 0, 100% 86.6%);
+}

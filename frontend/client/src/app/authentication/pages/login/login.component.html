@@ -1,0 +1,70 @@
+<div class="bg-gray-50 h-screen">
+  <div class="flex items-center justify-end gap-x-4 text-sm p-4">
+    <span>Don't have an account yet?</span>
+    <a class="py-2 px-4 text-title font-medium secondaryBtn" routerLink="../register">Sign up</a>
+  </div>
+
+  <div class="bg-gray-50">
+    <div class="py-6 px-8 flex items-center justify-center max-w-lg mx-auto flex-col">
+      <div class="flex items-center justify-center flex-col">
+        <a class="" routerLink="/">
+          <svg-icon fontSize="40px" key="logo"></svg-icon>
+        </a>
+        <h2 class="text-3xl mt-6 font-semibold">Log in to your account</h2>
+        <p class="mt-2 text-sm">Or <a class="text-link" routerLink="../login">create a free account</a></p>
+      </div>
+
+      <div class="text-center">
+        <p class="">Email: user@gmail.com</p>
+        <p class="">Password: 12345678</p>
+      </div>
+
+      <div class="mt-8 primaryBox w-full px-10 text-start">
+        <form #form="ngForm" (ngSubmit)="onSubmitForm()" [formGroup]="fLogin" class="flex flex-col gap-y-6"
+              novalidate>
+          <div class="">
+            <label class="font-medium text-gray-700" for="email">Email</label>
+            <input
+              class="mt-1 block py-2 w-full px-3 input text-textGrayDark"
+              formControlName="email"
+              id="email" type="text"/>
+
+            <span
+              *ngIf="(fLogin.get('email')?.errors?.['required'] && fLogin.get('email')?.touched) || (fLogin.get('email')?.errors?.['required'] && form.submitted)"
+              class="block text-sm text-validateText mt-2">Please enter your email!</span>
+          </div>
+
+          <div class="">
+            <label class="font-medium text-gray-700" for="password">Password</label>
+            <input class="mt-1 block py-2 w-full px-3 input text-textGrayDark"
+                   formControlName="password"
+                   id="password" type="password"/>
+
+            <span
+              *ngIf="(fLogin.get('password')?.errors?.['required'] && fLogin.get('password')?.touched) || (fLogin.get('password')?.errors?.['required'] && form.submitted)"
+              class="block text-sm text-validateText mt-2">Please enter your password!</span>
+            <span
+              *ngIf="(fLogin.get('password')?.errors?.['minlength'] && fLogin.get('password')?.touched) || (fLogin.get('password')?.errors?.['minlength'] && form.submitted)"
+              class="block text-sm text-validateText mt-2">Password must be at least 8 characters long!</span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-x-2">
+              <input class="h-5 w-5" formControlName="rememberMe" id="rememberMe" type="checkbox"/>
+              <label class="text-sm" for="rememberMe">Remember me</label>
+            </div>
+
+            <a class="text-link text-sm" routerLink="../forgot-password">Forgot your password?</a>
+          </div>
+
+          <div *ngIf="form.submitted && isLoginFail"
+               class="rounded-md bg-red-50 border border-transparent p-4 flex items-center gap-x-2 text-red-800">
+            <svg-icon class="" fontSize="20px" key="x-circle-fill"></svg-icon>
+            <span class="">{{errorMessage}}</span>
+          </div>
+          <button class="primaryBtn py-2 px-4" type="submit">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

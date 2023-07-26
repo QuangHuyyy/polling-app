@@ -1,0 +1,146 @@
+<footer class="bg-gray-100">
+  <div class="my-container pt-16 divide-y divide-border">
+    <!--    Footer top -->
+    <div class="grid grid-cols-3 gap-x-8 mb-12">
+      <div class="col-span-1 space-y-8">
+        <!--        Logo -->
+        <div class="flex items-center gap-x-1">
+          <svg-icon fontSize="24px" key="logo"></svg-icon>
+          <h1 class="text-3xl">StrawPoll</h1>
+        </div>
+
+        <p class="text-base text-textGrayDark">
+          Making it easy to create instant, real-time polls and surveys for free.
+        </p>
+
+        <!--        Menu social -->
+        <ul class="flex flex-row gap-x-8 text-textGrayDark">
+          <li>
+            <a class="hover:text-text transition-colors" href="">
+              <svg-icon class="" fontSize="24px" key="facebook"></svg-icon>
+            </a>
+          </li>
+          <li>
+            <a class="hover:text-text transition-colors" href="">
+              <svg-icon class="" fontSize="24px" key="instagram"></svg-icon>
+            </a>
+          </li>
+          <li>
+            <a class="hover:text-text transition-colors" href="">
+              <svg-icon class="" fontSize="24px" key="twitter"></svg-icon>
+            </a>
+          </li>
+          <li>
+            <a class="hover:text-text transition-colors" href="">
+              <svg-icon class="" fontSize="24px" key="github"></svg-icon>
+            </a>
+          </li>
+        </ul>
+
+        <!--        Language -->
+        <div class="flex items-center gap-x-2">
+          <svg-icon class="text-textGrayDark" fontSize="32px" key="globe"></svg-icon>
+          <form class="flex-1 relative">
+            <input
+              #language
+              (click)="toggleMenuLanguage()"
+              class="w-full py-2 pr-10 bg-white text-text rounded-md pl-3 border border-inputBorder cursor-pointer focus:outline-none focus:ring-1 focus:ring-inputHighlight focus:border-inputHighlight transition-all"
+              readonly type="text" value="{{ languageValue }}"/>
+            <svg-icon [key]="isOpenMenuLanguage ? 'caret-up' : 'caret-down'"
+                      class="absolute top-1/2 -translate-y-1/2 right-3 cursor-pointer"
+                      fontSize=""></svg-icon>
+
+            <div #menuLanguage
+                 [style.visibility]="isOpenMenuLanguage ? 'visible' : 'hidden'"
+                 class="absolute invisible top-full mt-2 left-0 right-0 border-boxBorder rounded-md shadow bg-white z-10 py-1">
+              <button (click)="onChangeLanguage(language)" *ngFor="let language of languages"
+                      class="flex items-center gap-x-3 px-4 py-1 hover:bg-gray-100 w-full"
+                      type="button">{{ language}}</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-span-2 grid grid-cols-4">
+        <div class="col-span-1">
+          <h3 class="uppercase text-textGrayDark font-semibold">SOLUTIONS</h3>
+
+          <ul class="mt-4 space-y-4">
+            <li>
+              <a class="text-base text-textGrayDark hover:text-textGrayLight transition-colors" href="">Poll Maker</a>
+            </li>
+            <li>
+              <a class="text-base text-textGrayDark hover:text-textGrayLight transition-colors" href="">Meeting
+                Scheduler</a>
+            </li>
+            <li>
+              <a class="text-base text-textGrayDark hover:text-textGrayLight transition-colors" href="">Discord Bot</a>
+            </li>
+            <li>
+              <a class="text-base text-textGrayDark hover:text-textGrayLight transition-colors" href="">Poll API</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="col-span-1">
+          <h3 class="uppercase text-textGrayDark font-semibold">SUPPORT</h3>
+
+          <ul class="mt-4 space-y-4">
+            <li>
+              <a class="text-base text-textGrayDark hover:text-textGrayLight transition-colors" href="">Pricing</a>
+            </li>
+            <li>
+              <a class="text-base text-textGrayDark hover:text-textGrayLight transition-colors" href="">Help Center</a>
+            </li>
+            <li>
+              <a class="text-base text-textGrayDark hover:text-textGrayLight transition-colors" href="">Guides</a>
+            </li>
+            <li>
+              <a class="text-base text-textGrayDark hover:text-textGrayLight transition-colors" href="">F.A.Q.</a>
+            </li>
+            <li>
+              <a class="text-base text-textGrayDark hover:text-textGrayLight transition-colors" href="">Integrations</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="col-span-1">
+          <h3 class="uppercase text-textGrayDark font-semibold">COMPANY</h3>
+
+          <ul class="mt-4 space-y-4">
+            <li>
+              <a class="text-base text-textGrayDark hover:text-textGrayLight transition-colors" href="">About</a>
+            </li>
+            <li>
+              <a class="text-base text-textGrayDark hover:text-textGrayLight transition-colors" href="">Imprint</a>
+            </li>
+            <li>
+              <a class="text-base text-textGrayDark hover:text-textGrayLight transition-colors" href="">Contact</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="col-span-1">
+          <h3 class="uppercase text-textGrayDark font-semibold">LEGAL</h3>
+
+          <ul class="mt-4 space-y-4">
+            <li>
+              <a class="text-base text-textGrayDark hover:text-textGrayLight transition-colors" href="">Privacy</a>
+            </li>
+            <li>
+              <a class="text-base text-textGrayDark hover:text-textGrayLight transition-colors" href="">Terms</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!--    Footer copyright -->
+    <div class="py-8">
+      <div class="flex items-center justify-center gap-x-1">
+        <svg-icon class="text-base text-textGrayDark" key="copyright"></svg-icon>
+        <p class="text-base text-textGrayDark">2022 StrawPoll. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</footer>
